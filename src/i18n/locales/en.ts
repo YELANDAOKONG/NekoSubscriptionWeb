@@ -1,6 +1,8 @@
 export const en = {
   App_Name: "NekoSubscription",
+  Brand_Tagline: "CSV session",
   Brand_SessionOnly: "Imported data stays in this tab until you refresh.",
+  Nav_Analyze: "Analysis",
   Nav_Overview: "Overview",
   Nav_OverviewSubtitle: "Cash flow and renewals",
   Nav_Subscriptions: "Subscriptions",

@@ -2,7 +2,9 @@ import type { MessageKey } from "@/i18n/locales/en"
 
 export const zhHans: Record<MessageKey, string> = {
   App_Name: "NekoSubscription",
+  Brand_Tagline: "CSV 会话分析",
   Brand_SessionOnly: "导入的数据只保留在当前标签页，刷新后即清除。",
+  Nav_Analyze: "分析",
   Nav_Overview: "概览",
   Nav_OverviewSubtitle: "现金流与续订",
   Nav_Subscriptions: "订阅",

@@ -2,7 +2,9 @@ import type { MessageKey } from "@/i18n/locales/en"
 
 export const zhHant: Record<MessageKey, string> = {
   App_Name: "NekoSubscription",
+  Brand_Tagline: "CSV 工作階段",
   Brand_SessionOnly: "匯入的資料只保留在目前分頁，重新整理後即清除。",
+  Nav_Analyze: "分析",
   Nav_Overview: "總覽",
   Nav_OverviewSubtitle: "現金流與續訂",
   Nav_Subscriptions: "訂閱",

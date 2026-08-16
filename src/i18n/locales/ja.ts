@@ -2,7 +2,9 @@ import type { MessageKey } from "@/i18n/locales/en"
 
 export const ja: Record<MessageKey, string> = {
   App_Name: "NekoSubscription",
+  Brand_Tagline: "CSV セッション",
   Brand_SessionOnly: "読み込んだデータはこのタブにだけ残り、再読み込みで消えます。",
+  Nav_Analyze: "分析",
   Nav_Overview: "概要",
   Nav_OverviewSubtitle: "キャッシュフローと更新",
   Nav_Subscriptions: "サブスクリプション",
