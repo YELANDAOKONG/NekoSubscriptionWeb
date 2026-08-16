@@ -41,6 +41,7 @@ export const en = {
   Column_Status: "Status",
   Column_Amount: "Amount",
   Column_NextBilling: "Next billing",
+  Column_StartDate: "Start date",
   Column_Account: "Account",
   Column_Cycle: "Cycle",
   Column_PaymentChannel: "Payment method",

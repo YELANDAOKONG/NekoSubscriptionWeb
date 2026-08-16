@@ -43,6 +43,7 @@ export const zhHans: Record<MessageKey, string> = {
   Column_Status: "状态",
   Column_Amount: "金额",
   Column_NextBilling: "下次扣款",
+  Column_StartDate: "开始日期",
   Column_Account: "账户",
   Column_Cycle: "周期",
   Column_PaymentChannel: "付款方式",

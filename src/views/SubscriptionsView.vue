@@ -46,6 +46,9 @@ const filtered = computed(() => {
             subscription.providerName,
             subscription.serviceName,
             subscription.accountName ?? "",
+            subscription.paymentAccount ?? "",
+            subscription.notes ?? "",
+            paymentChannelLabel(preferences.resolvedLocale, subscription.paymentChannel),
             subscription.isActive
               ? preferences.t("Status_Active")
               : preferences.t("Status_Inactive"),
@@ -69,6 +72,16 @@ function onSortChange(value: unknown): void {
   if (isSubscriptionSortOption(value)) {
     sort.value = value
   }
+}
+
+function textOrUnknown(value: string | null): string {
+  return value ?? preferences.t("Common_Unknown")
+}
+
+function dateLabel(iso: string | null, emptyKey: "Common_Unknown" | "Common_NotScheduled"): string {
+  return iso === null
+    ? preferences.t(emptyKey)
+    : formatIsoDate(iso, preferences.resolvedLocale)
 }
 </script>
 
@@ -126,48 +139,41 @@ function onSortChange(value: unknown): void {
             <TableRow>
               <TableHead>{{ preferences.t("Column_Provider") }}</TableHead>
               <TableHead>{{ preferences.t("Column_Service") }}</TableHead>
-              <TableHead class="hidden md:table-cell">{{ preferences.t("Column_Account") }}</TableHead>
+              <TableHead>{{ preferences.t("Column_Account") }}</TableHead>
               <TableHead>{{ preferences.t("Column_Amount") }}</TableHead>
-              <TableHead class="hidden lg:table-cell">{{ preferences.t("Column_Cycle") }}</TableHead>
-              <TableHead class="hidden sm:table-cell">{{ preferences.t("Column_NextBilling") }}</TableHead>
+              <TableHead>{{ preferences.t("Column_Cycle") }}</TableHead>
+              <TableHead>{{ preferences.t("Column_StartDate") }}</TableHead>
+              <TableHead>{{ preferences.t("Column_NextBilling") }}</TableHead>
               <TableHead>{{ preferences.t("Column_Status") }}</TableHead>
-              <TableHead class="hidden xl:table-cell">{{ preferences.t("Column_PaymentChannel") }}</TableHead>
+              <TableHead>{{ preferences.t("Column_PaymentChannel") }}</TableHead>
+              <TableHead>{{ preferences.t("Column_PaymentAccount") }}</TableHead>
+              <TableHead>{{ preferences.t("Column_Notes") }}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow v-for="subscription in filtered" :key="subscription.id">
               <TableCell class="font-medium">{{ subscription.providerName }}</TableCell>
+              <TableCell>{{ subscription.serviceName }}</TableCell>
+              <TableCell>{{ textOrUnknown(subscription.accountName) }}</TableCell>
               <TableCell>
-                <div class="flex flex-col">
-                  <span>{{ subscription.serviceName }}</span>
-                  <span class="text-muted-foreground md:hidden text-xs">
-                    {{ subscription.accountName ?? preferences.t("Common_Unknown") }}
-                  </span>
-                </div>
-              </TableCell>
-              <TableCell class="hidden md:table-cell">
-                {{ subscription.accountName ?? preferences.t("Common_Unknown") }}
-              </TableCell>
-              <TableCell class="whitespace-nowrap">
                 {{ formatMoney(subscription.billingAmount, preferences.resolvedLocale) }}
               </TableCell>
-              <TableCell class="hidden lg:table-cell">
+              <TableCell>
                 {{ cycleLabel(preferences.resolvedLocale, subscription.intervalUnit, subscription.intervalCount) }}
               </TableCell>
-              <TableCell class="hidden sm:table-cell">
-                {{
-                  subscription.nextBillingOn
-                    ? formatIsoDate(subscription.nextBillingOn, preferences.resolvedLocale)
-                    : preferences.t("Common_NotScheduled")
-                }}
-              </TableCell>
+              <TableCell>{{ dateLabel(subscription.startsOn, "Common_Unknown") }}</TableCell>
+              <TableCell>{{ dateLabel(subscription.nextBillingOn, "Common_NotScheduled") }}</TableCell>
               <TableCell>
                 <Badge :variant="subscription.isActive ? 'default' : 'secondary'">
                   {{ subscription.isActive ? preferences.t("Status_Active") : preferences.t("Status_Inactive") }}
                 </Badge>
               </TableCell>
-              <TableCell class="hidden xl:table-cell">
+              <TableCell>
                 {{ paymentChannelLabel(preferences.resolvedLocale, subscription.paymentChannel) }}
+              </TableCell>
+              <TableCell>{{ textOrUnknown(subscription.paymentAccount) }}</TableCell>
+              <TableCell class="max-w-72 whitespace-normal">
+                {{ textOrUnknown(subscription.notes) }}
               </TableCell>
             </TableRow>
           </TableBody>

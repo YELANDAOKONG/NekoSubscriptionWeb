@@ -43,6 +43,7 @@ export const zhHant: Record<MessageKey, string> = {
   Column_Status: "狀態",
   Column_Amount: "金額",
   Column_NextBilling: "下次扣款",
+  Column_StartDate: "開始日期",
   Column_Account: "帳戶",
   Column_Cycle: "週期",
   Column_PaymentChannel: "付款方式",

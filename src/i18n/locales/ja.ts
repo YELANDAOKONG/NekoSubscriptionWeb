@@ -43,6 +43,7 @@ export const ja: Record<MessageKey, string> = {
   Column_Status: "状態",
   Column_Amount: "金額",
   Column_NextBilling: "次回請求",
+  Column_StartDate: "開始日",
   Column_Account: "アカウント",
   Column_Cycle: "周期",
   Column_PaymentChannel: "支払い方法",
