@@ -3,6 +3,14 @@ import { computed, ref } from "vue"
 
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Table,
   TableBody,
@@ -15,30 +23,39 @@ import EmptyState from "@/components/EmptyState.vue"
 import { cycleLabel, formatIsoDate, formatMoney, paymentChannelLabel } from "@/i18n/format"
 import { usePreferencesStore } from "@/stores/preferences"
 import { useSessionStore } from "@/stores/session"
+import {
+  DEFAULT_SUBSCRIPTION_SORT,
+  isSubscriptionSortOption,
+  sortSubscriptions,
+  SUBSCRIPTION_SORT_LABELS,
+  SUBSCRIPTION_SORT_OPTIONS,
+} from "@/subscriptions/sort"
 
 const preferences = usePreferencesStore()
 const session = useSessionStore()
 const query = ref("")
+const sort = ref(DEFAULT_SUBSCRIPTION_SORT)
 
 const filtered = computed(() => {
   const needle = query.value.trim().toLowerCase()
-  if (needle === "") {
-    return session.subscriptions
-  }
+  const matched =
+    needle === ""
+      ? session.subscriptions
+      : session.subscriptions.filter((subscription) => {
+          const haystack = [
+            subscription.providerName,
+            subscription.serviceName,
+            subscription.accountName ?? "",
+            subscription.isActive
+              ? preferences.t("Status_Active")
+              : preferences.t("Status_Inactive"),
+          ]
+            .join(" ")
+            .toLowerCase()
+          return haystack.includes(needle)
+        })
 
-  return session.subscriptions.filter((subscription) => {
-    const haystack = [
-      subscription.providerName,
-      subscription.serviceName,
-      subscription.accountName ?? "",
-      subscription.isActive
-        ? preferences.t("Status_Active")
-        : preferences.t("Status_Inactive"),
-    ]
-      .join(" ")
-      .toLowerCase()
-    return haystack.includes(needle)
-  })
+  return sortSubscriptions(matched, sort.value, preferences.resolvedLocale)
 })
 
 const countLabel = computed(() => {
@@ -47,6 +64,12 @@ const countLabel = computed(() => {
     ? preferences.t("Subscriptions_CountOne")
     : preferences.t("Subscriptions_CountMany", count)
 })
+
+function onSortChange(value: unknown): void {
+  if (isSubscriptionSortOption(value)) {
+    sort.value = value
+  }
+}
 </script>
 
 <template>
@@ -65,12 +88,29 @@ const countLabel = computed(() => {
     />
 
     <template v-else>
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Input
-          v-model="query"
-          :placeholder="preferences.t('Subscriptions_SearchPlaceholder')"
-          class="sm:max-w-sm"
-        />
+      <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Input
+            v-model="query"
+            :placeholder="preferences.t('Subscriptions_SearchPlaceholder')"
+            class="sm:max-w-sm"
+          />
+          <div class="flex min-w-0 items-center">
+            <Label for="subscription-sort" class="sr-only">
+              {{ preferences.t("Subscriptions_SortLabel") }}
+            </Label>
+            <Select :model-value="sort" @update:model-value="onSortChange">
+              <SelectTrigger id="subscription-sort" class="w-full sm:w-56">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="option in SUBSCRIPTION_SORT_OPTIONS" :key="option" :value="option">
+                  {{ preferences.t(SUBSCRIPTION_SORT_LABELS[option]) }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
         <p class="text-muted-foreground text-sm">{{ countLabel }}</p>
       </div>
 
