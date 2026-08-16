@@ -88,6 +88,10 @@ export const en = {
   Settings_ImportCsv: "Import CSV",
   Settings_ImportCsvToolTip:
     "Columns: Provider, Plan, Account, Amount, Currency, Interval, Start Date, Next Billing Date, [Unused], Is Active, Payment Channel, Payment Account, Notes",
+  Settings_ExportCsv: "Export CSV",
+  Settings_ExportCsvFuzzy: "Fuzzy export",
+  Settings_ExportCsvToolTip:
+    "Download imported rows with fixed uppercase English headers. Fuzzy export replaces account names and payment accounts with ***.",
   Settings_ConfirmImport: "Import",
   Settings_ImportPreviewSummary:
     "{0} valid row(s), {1} error(s), and {2} warning(s). The header text is ignored; columns are matched by position.",
@@ -100,6 +104,8 @@ export const en = {
   Status_CsvPreviewFailed: "Unable to read or validate the CSV file.",
   Status_CsvImportCompleted: "Imported {0} subscription(s).",
   Status_CsvImportFailed: "Unable to import the CSV file. No rows were added.",
+  Status_CsvExportCompleted: "Exported {0} subscription(s).",
+  Status_CsvExportFailed: "Unable to export the CSV file.",
   Status_CsvTooLarge: "The CSV file cannot exceed 10 MB.",
   Status_SessionCleared: "Imported subscriptions were cleared.",
   ImportIssue_MalformedCsv: "malformed CSV quoting or delimiters",
@@ -177,7 +183,7 @@ export const en = {
   About_IntroBody:
     "A browser-only analysis client for NekoSubscription. Import a CSV in this tab to forecast upcoming charges. Nothing is uploaded, and refreshing the page clears the imported rows. Language and theme are the only values saved in this browser.",
   About_IntroCompanion:
-    "It reads the same 13-column export as the desktop app. It does not edit, store, or sync subscriptions.",
+    "It reads and writes the same 13-column CSV as the desktop app. It does not edit, store, or sync subscriptions.",
   About_OpenRepository: "Open GitHub repository",
   About_CsvTitle: "13-column CSV format",
   About_CsvDescription:
@@ -203,6 +209,8 @@ export const en = {
   About_Rule2: "Blank rows are ignored. Trailing empty columns are allowed.",
   About_Rule3: "Quoted fields are supported. Duplicate rows produce a warning and are still imported.",
   About_Rule4: "Inactive rows stay in the subscription list but are excluded from cash-flow forecasts.",
+  About_Rule5:
+    "Export writes these 13 columns with the uppercase English headers above. Fuzzy export replaces account and payment-account values with ***.",
 } as const
 
 export type MessageKey = keyof typeof en

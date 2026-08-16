@@ -90,6 +90,10 @@ export const zhHans: Record<MessageKey, string> = {
   Settings_ImportCsv: "导入 CSV",
   Settings_ImportCsvToolTip:
     "列：服务商, 计划, 账户, 金额, 币种, 周期, 开始日期, 下次扣款日, [保留空列], 是否激活, 支付渠道, 支付账户, 备注",
+  Settings_ExportCsv: "导出 CSV",
+  Settings_ExportCsvFuzzy: "模糊导出",
+  Settings_ExportCsvToolTip:
+    "使用固定的英文全大写表头导出当前导入的订阅。模糊导出会将账户名称和付款账户替换为 ***。",
   Settings_ConfirmImport: "导入",
   Settings_ImportPreviewSummary: "{0} 行有效，{1} 个错误，{2} 个警告。表头文字会被忽略，字段按列位置匹配。",
   Settings_ImportIssueLine: "第 {0} 行：{1}",
@@ -100,6 +104,8 @@ export const zhHans: Record<MessageKey, string> = {
   Status_CsvPreviewFailed: "无法读取或验证 CSV 文件。",
   Status_CsvImportCompleted: "已导入 {0} 项订阅。",
   Status_CsvImportFailed: "无法导入 CSV，未添加任何数据。",
+  Status_CsvExportCompleted: "已导出 {0} 项订阅。",
+  Status_CsvExportFailed: "无法导出 CSV 文件。",
   Status_CsvTooLarge: "CSV 文件不能超过 10 MB。",
   Status_SessionCleared: "已清除导入的订阅。",
   ImportIssue_MalformedCsv: "CSV 引号或分隔符格式错误",
@@ -173,7 +179,7 @@ export const zhHans: Record<MessageKey, string> = {
   About_IntroTitle: "NekoSubscriptionWeb",
   About_IntroBody:
     "NekoSubscription 的纯浏览器分析客户端。在当前标签页导入 CSV，即可预估即将到来的扣款。数据不会上传；刷新页面会清除已导入的行。本浏览器仅保存语言和主题。",
-  About_IntroCompanion: "它读取与桌面版相同的 13 列导出格式，不会编辑、存储或同步订阅。",
+  About_IntroCompanion: "它读取并写出与桌面版相同的 13 列 CSV 格式，不会编辑、存储或同步订阅。",
   About_OpenRepository: "打开 GitHub 仓库",
   About_CsvTitle: "13 列 CSV 格式",
   About_CsvDescription:
@@ -199,4 +205,5 @@ export const zhHans: Record<MessageKey, string> = {
   About_Rule2: "空行会被忽略。允许末尾多余的空列。",
   About_Rule3: "支持带引号的字段。重复行会给出警告，但仍会导入。",
   About_Rule4: "停订行仍出现在订阅列表中，但不会进入现金流预估。",
+  About_Rule5: "导出会按上方英文全大写表头写出这 13 列。模糊导出会将账户名称和付款账户替换为 ***。",
 }

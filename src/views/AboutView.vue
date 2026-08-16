@@ -16,7 +16,7 @@ import { usePreferencesStore } from "@/stores/preferences"
 
 const preferences = usePreferencesStore()
 
-const rules = ["About_Rule1", "About_Rule2", "About_Rule3", "About_Rule4"] as const
+const rules = ["About_Rule1", "About_Rule2", "About_Rule3", "About_Rule4", "About_Rule5"] as const
 </script>
 
 <template>

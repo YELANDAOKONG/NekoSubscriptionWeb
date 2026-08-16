@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { Trash2, Upload } from "@lucide/vue"
+import { ChevronDown, Download, EyeOff, Trash2, Upload } from "@lucide/vue"
 import { computed, watch } from "vue"
 import { useRoute } from "vue-router"
 import { toast } from "vue-sonner"
 
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useCsvExport } from "@/composables/useCsvExport"
 import { useCsvImport } from "@/composables/useCsvImport"
 import { usePreferencesStore } from "@/stores/preferences"
 import { useSessionStore } from "@/stores/session"
@@ -17,6 +24,7 @@ const session = useSessionStore()
 const route = useRoute()
 const { setOpenMobile } = useSidebar()
 const { openImport } = useCsvImport()
+const { exportCsv } = useCsvExport()
 
 watch(() => route.fullPath, () => {
   setOpenMobile(false)
@@ -81,6 +89,32 @@ function clearSession(): void {
       >
         <Trash2 />
       </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger as-child>
+          <Button
+            variant="outline"
+            size="sm"
+            class="max-sm:size-8 max-sm:px-0"
+            :disabled="!session.hasData"
+            :aria-label="preferences.t('Settings_ExportCsv')"
+            :title="preferences.t('Settings_ExportCsvToolTip')"
+          >
+            <Download />
+            <span class="hidden sm:inline">{{ preferences.t("Settings_ExportCsv") }}</span>
+            <ChevronDown class="hidden sm:block" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" class="z-[100]">
+          <DropdownMenuItem @select="exportCsv(false)">
+            <Download />
+            {{ preferences.t("Settings_ExportCsv") }}
+          </DropdownMenuItem>
+          <DropdownMenuItem @select="exportCsv(true)">
+            <EyeOff />
+            {{ preferences.t("Settings_ExportCsvFuzzy") }}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <Button size="sm" class="hidden sm:inline-flex" @click="openImport()">
         <Upload />
         {{ preferences.t("Settings_ImportCsv") }}

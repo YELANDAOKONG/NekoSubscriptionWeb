@@ -21,3 +21,7 @@ export const CSV_FORMAT_COLUMNS: ReadonlyArray<{
   { index: 12, header: "PAYMENT ACCOUNT", description: "About_CsvCol12" },
   { index: 13, header: "NOTES", description: "About_CsvCol13" },
 ]
+
+export const CSV_EXPORT_HEADERS: readonly string[] = CSV_FORMAT_COLUMNS.map(
+  (column) => column.header,
+)

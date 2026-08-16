@@ -34,6 +34,22 @@ export function dropEventHasFiles(event: DragEvent): boolean {
   return Array.from(types).includes("Files")
 }
 
+export function downloadCsv(fileName: string, csvText: string): void {
+  const blob = new Blob([csvText], { type: "text/csv;charset=utf-8" })
+  const url = URL.createObjectURL(blob)
+  try {
+    const anchor = document.createElement("a")
+    anchor.href = url
+    anchor.download = fileName
+    anchor.rel = "noopener"
+    document.body.append(anchor)
+    anchor.click()
+    anchor.remove()
+  } finally {
+    URL.revokeObjectURL(url)
+  }
+}
+
 export async function loadCsvFile(file: File): Promise<CsvFileLoadResult> {
   if (!isCsvFile(file)) {
     return { ok: false, reason: "invalid_type" }

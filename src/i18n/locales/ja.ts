@@ -90,6 +90,10 @@ export const ja: Record<MessageKey, string> = {
   Settings_ImportCsv: "CSV を読み込む",
   Settings_ImportCsvToolTip:
     "列: 提供者, プラン, アカウント, 金額, 通貨, 周期, 開始日, 次回請求日, [未使用], 有効, 支払い方法, 支払い口座, メモ",
+  Settings_ExportCsv: "CSV を書き出す",
+  Settings_ExportCsvFuzzy: "マスクして書き出す",
+  Settings_ExportCsvToolTip:
+    "固定の英語大文字見出しで、読み込んだ行を書き出します。マスク書き出しはアカウント名と支払い口座を *** に置き換えます。",
   Settings_ConfirmImport: "読み込む",
   Settings_ImportPreviewSummary: "有効 {0} 行、エラー {1} 件、警告 {2} 件。見出し文字は無視し、列の位置で対応付けます。",
   Settings_ImportIssueLine: "{0} 行目: {1}",
@@ -100,6 +104,8 @@ export const ja: Record<MessageKey, string> = {
   Status_CsvPreviewFailed: "CSV ファイルを読み取れないか、検証できませんでした。",
   Status_CsvImportCompleted: "{0} 件のサブスクリプションを読み込みました。",
   Status_CsvImportFailed: "CSV を読み込めませんでした。行は追加されていません。",
+  Status_CsvExportCompleted: "{0} 件のサブスクリプションを書き出しました。",
+  Status_CsvExportFailed: "CSV ファイルを書き出せませんでした。",
   Status_CsvTooLarge: "CSV ファイルは 10 MB を超えられません。",
   Status_SessionCleared: "読み込んだサブスクリプションをクリアしました。",
   ImportIssue_MalformedCsv: "CSV の引用符または区切りが不正です",
@@ -173,7 +179,7 @@ export const ja: Record<MessageKey, string> = {
   About_IntroTitle: "NekoSubscriptionWeb",
   About_IntroBody:
     "NekoSubscription 向けのブラウザ専用分析クライアントです。このタブで CSV を読み込み、今後の請求を予測します。データは送信されず、再読み込みで行は消えます。このブラウザに保存されるのは言語とテーマだけです。",
-  About_IntroCompanion: "デスクトップ版と同じ 13 列のエクスポートを読みます。サブスクリプションの編集、保存、同期は行いません。",
+  About_IntroCompanion: "デスクトップ版と同じ 13 列 CSV を読み書きします。サブスクリプションの編集、保存、同期は行いません。",
   About_OpenRepository: "GitHub リポジトリを開く",
   About_CsvTitle: "13 列 CSV 形式",
   About_CsvDescription:
@@ -199,4 +205,6 @@ export const ja: Record<MessageKey, string> = {
   About_Rule2: "空行は無視します。末尾の空列は許可されます。",
   About_Rule3: "引用符付きフィールドに対応します。重複行は警告しますが、読み込みは続行します。",
   About_Rule4: "停止中の行は一覧に残りますが、キャッシュフロー予測には入りません。",
+  About_Rule5:
+    "書き出しは上記の英語大文字見出しでこの 13 列を出力します。マスク書き出しはアカウントと支払い口座の値を *** に置き換えます。",
 }
