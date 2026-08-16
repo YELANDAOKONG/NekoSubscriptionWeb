@@ -3,7 +3,8 @@ import { computed, ref } from "vue"
 
 import { summarizeMonthlyCost, summarizeOverdueFunds } from "@/cashflow/cost"
 import { projectCashFlow } from "@/cashflow/project"
-import { addDays, compareIso, dayNumber, todayIso } from "@/domain/dates"
+import { useToday } from "@/composables/useToday"
+import { addDays, compareIso, dayNumber } from "@/domain/dates"
 import {
   DEFAULT_FORECAST_DAYS,
   type OverduePayment,
@@ -23,7 +24,7 @@ export const useSessionStore = defineStore("session", () => {
     subscriptions.value.filter((subscription) => !subscription.participatesInBudget).length,
   )
 
-  const today = computed(() => todayIso())
+  const today = useToday()
 
   const overduePayments = computed<OverduePayment[]>(() => {
     const start = today.value

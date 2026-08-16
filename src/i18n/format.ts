@@ -58,11 +58,34 @@ export function formatMonthTitle(iso: string, locale: AppLocale): string {
   return format(parseISO(iso), "MMMM yyyy", { locale: dateFnsLocale(locale) })
 }
 
+const numberFormatCache = new Map<string, Intl.NumberFormat>()
+
+function numberFormat(
+  locale: AppLocale,
+  minimumFractionDigits: number,
+  maximumFractionDigits: number,
+): Intl.NumberFormat {
+  const key = `${bcp47(locale)}|${minimumFractionDigits}|${maximumFractionDigits}`
+  const cached = numberFormatCache.get(key)
+  if (cached !== undefined) {
+    return cached
+  }
+
+  const created = new Intl.NumberFormat(bcp47(locale), {
+    minimumFractionDigits,
+    maximumFractionDigits,
+  })
+  numberFormatCache.set(key, created)
+  return created
+}
+
 export function formatMoney(money: Money, locale: AppLocale): string {
-  const formattedAmount = new Intl.NumberFormat(bcp47(locale), {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 8,
-  }).format(money.amount)
+  const isStandardCurrency = money.currencyKind === "iso4217"
+  const formattedAmount = numberFormat(
+    locale,
+    isStandardCurrency ? 2 : 0,
+    isStandardCurrency ? 2 : 8,
+  ).format(money.amount)
   return `${formattedAmount} ${money.currencyCode}`
 }
 

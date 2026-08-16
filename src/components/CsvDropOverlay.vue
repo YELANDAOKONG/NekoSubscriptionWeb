@@ -7,7 +7,7 @@ import { useCsvImport } from "@/composables/useCsvImport"
 import { usePreferencesStore } from "@/stores/preferences"
 
 const preferences = usePreferencesStore()
-const { openImport } = useCsvImport()
+const { openImport, importOpen } = useCsvImport()
 const isDragging = ref(false)
 
 function onDragOver(event: DragEvent): void {
@@ -61,7 +61,7 @@ onUnmounted(() => {
 
 <template>
   <div
-    v-if="isDragging"
+    v-if="isDragging && !importOpen"
     class="bg-background/80 fixed inset-0 z-[200] flex items-center justify-center p-6 backdrop-blur-sm"
   >
     <div class="border-primary bg-card text-card-foreground flex max-w-md flex-col items-center gap-3 rounded-xl border-2 border-dashed p-8 text-center shadow-lg">

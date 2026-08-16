@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronLeft, ChevronRight } from "@lucide/vue"
+import { ChevronLeft, ChevronRight, Upload } from "@lucide/vue"
 import { computed, ref, watch } from "vue"
 
 import { Badge } from "@/components/ui/badge"
@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Item, ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item"
 import EmptyState from "@/components/EmptyState.vue"
+import { useCsvImport } from "@/composables/useCsvImport"
+import { useToday } from "@/composables/useToday"
 import { projectCashFlow } from "@/cashflow/project"
 import {
   addDays,
   addMonths,
   startOfMonth,
-  todayIso,
   weekdayMondayFirst,
 } from "@/domain/dates"
 import { CALENDAR_DAY_COUNT, type CashFlowItem } from "@/domain/types"
@@ -41,9 +42,10 @@ type CalendarDay = {
 
 const preferences = usePreferencesStore()
 const session = useSessionStore()
-const today = todayIso()
-const displayedMonth = ref(startOfMonth(today))
-const selectedDate = ref(today)
+const { openImport } = useCsvImport()
+const today = useToday()
+const displayedMonth = ref(startOfMonth(today.value))
+const selectedDate = ref(today.value)
 
 watch(displayedMonth, (month) => {
   if (!selectedDate.value.startsWith(month.slice(0, 7))) {
@@ -69,7 +71,7 @@ const days = computed<CalendarDay[]>(() => {
     return {
       date,
       inMonth: date.startsWith(monthStart.slice(0, 7)),
-      isToday: date === today,
+      isToday: date === today.value,
       isSelected: date === selectedDate.value,
       payments: paymentsByDate.get(date) ?? [],
     }
@@ -89,8 +91,8 @@ function goToNextMonth(): void {
 }
 
 function goToToday(): void {
-  displayedMonth.value = startOfMonth(today)
-  selectedDate.value = today
+  displayedMonth.value = startOfMonth(today.value)
+  selectedDate.value = today.value
 }
 
 function selectDate(date: string): void {
@@ -112,7 +114,12 @@ function selectDate(date: string): void {
       v-if="!session.hasData"
       :title="preferences.t('Subscriptions_NoDataTitle')"
       :description="preferences.t('Subscriptions_NoDataDescription')"
-    />
+    >
+      <Button @click="openImport()">
+        <Upload />
+        {{ preferences.t("Settings_ImportCsv") }}
+      </Button>
+    </EmptyState>
 
     <div v-else class="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(18rem,1fr)]">
       <Card>
@@ -143,6 +150,7 @@ function selectDate(date: string): void {
               v-for="day in days"
               :key="day.date"
               type="button"
+              :aria-pressed="day.isSelected"
               :class="cn(
                 'hover:bg-accent flex min-h-14 flex-col items-start rounded-md border p-1 text-left sm:min-h-24 sm:p-2',
                 day.inMonth ? 'bg-background' : 'bg-muted/40 text-muted-foreground',
@@ -203,7 +211,7 @@ function selectDate(date: string): void {
               <ItemTitle>{{ payment.serviceName }}</ItemTitle>
               <ItemDescription>{{ payment.providerName }}</ItemDescription>
             </ItemContent>
-            <Badge variant="secondary">
+            <Badge variant="secondary" class="tabular-nums">
               {{ formatMoney(payment.amount, preferences.resolvedLocale) }}
             </Badge>
           </Item>

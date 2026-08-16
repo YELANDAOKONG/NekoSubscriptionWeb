@@ -3,6 +3,7 @@ import { FileUp } from "@lucide/vue"
 
 import {
   Empty,
+  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
@@ -24,5 +25,8 @@ defineProps<{
       <EmptyTitle>{{ title }}</EmptyTitle>
       <EmptyDescription>{{ description }}</EmptyDescription>
     </EmptyHeader>
+    <EmptyContent v-if="$slots.default">
+      <slot />
+    </EmptyContent>
   </Empty>
 </template>

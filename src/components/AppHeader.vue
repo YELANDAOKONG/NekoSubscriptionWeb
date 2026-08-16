@@ -90,20 +90,24 @@ function clearSession(): void {
         <Trash2 />
       </Button>
       <DropdownMenu>
-        <DropdownMenuTrigger as-child>
-          <Button
-            variant="outline"
-            size="sm"
-            class="max-sm:size-8 max-sm:px-0"
-            :disabled="!session.hasData"
-            :aria-label="preferences.t('Settings_ExportCsv')"
-            :title="preferences.t('Settings_ExportCsvToolTip')"
-          >
-            <Download />
-            <span class="hidden sm:inline">{{ preferences.t("Settings_ExportCsv") }}</span>
-            <ChevronDown class="hidden sm:block" />
-          </Button>
-        </DropdownMenuTrigger>
+        <Tooltip>
+          <TooltipTrigger as-child>
+            <DropdownMenuTrigger as-child>
+              <Button
+                variant="outline"
+                size="sm"
+                class="max-sm:size-8 max-sm:px-0"
+                :disabled="!session.hasData"
+                :aria-label="preferences.t('Settings_ExportCsv')"
+              >
+                <Download />
+                <span class="hidden sm:inline">{{ preferences.t("Settings_ExportCsv") }}</span>
+                <ChevronDown class="hidden sm:block" />
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>{{ preferences.t("Settings_ExportCsvToolTip") }}</TooltipContent>
+        </Tooltip>
         <DropdownMenuContent align="end" class="z-[100]">
           <DropdownMenuItem @select="exportCsv(false)">
             <Download />

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
+import { Upload } from "@lucide/vue"
 
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -20,6 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import EmptyState from "@/components/EmptyState.vue"
+import { useCsvImport } from "@/composables/useCsvImport"
 import { monthlyEquivalentAmount } from "@/cashflow/cost"
 import { cycleLabel, formatIsoDate, formatMoney, paymentChannelLabel } from "@/i18n/format"
 import { usePreferencesStore } from "@/stores/preferences"
@@ -34,6 +37,7 @@ import {
 
 const preferences = usePreferencesStore()
 const session = useSessionStore()
+const { openImport } = useCsvImport()
 const query = ref("")
 const sort = ref(DEFAULT_SUBSCRIPTION_SORT)
 
@@ -99,7 +103,12 @@ function dateLabel(iso: string | null, emptyKey: "Common_Unknown" | "Common_NotS
       v-if="!session.hasData"
       :title="preferences.t('Subscriptions_NoDataTitle')"
       :description="preferences.t('Subscriptions_NoDataDescription')"
-    />
+    >
+      <Button @click="openImport()">
+        <Upload />
+        {{ preferences.t("Settings_ImportCsv") }}
+      </Button>
+    </EmptyState>
 
     <template v-else>
       <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -157,13 +166,13 @@ function dateLabel(iso: string | null, emptyKey: "Common_Unknown" | "Common_NotS
               <TableCell class="font-medium">{{ subscription.providerName }}</TableCell>
               <TableCell>{{ subscription.serviceName }}</TableCell>
               <TableCell>{{ textOrUnknown(subscription.accountName) }}</TableCell>
-              <TableCell>
+              <TableCell class="tabular-nums">
                 {{ formatMoney(subscription.billingAmount, preferences.resolvedLocale) }}
               </TableCell>
               <TableCell>
                 {{ cycleLabel(preferences.resolvedLocale, subscription.intervalUnit, subscription.intervalCount) }}
               </TableCell>
-              <TableCell>
+              <TableCell class="tabular-nums">
                 {{
                   formatMoney(
                     {

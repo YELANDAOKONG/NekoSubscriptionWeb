@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { computed } from "vue"
-import { AlertTriangle } from "@lucide/vue"
+import { AlertTriangle, Upload } from "@lucide/vue"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Item, ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import EmptyState from "@/components/EmptyState.vue"
+import { useCsvImport } from "@/composables/useCsvImport"
 import type { CurrencyAmountTotal } from "@/domain/types"
 import { FORECAST_PERIODS, MAXIMUM_UPCOMING_PAYMENT_COUNT } from "@/domain/types"
 import { formatIsoDate, formatMoney } from "@/i18n/format"
@@ -16,9 +18,13 @@ import { useSessionStore } from "@/stores/session"
 
 const preferences = usePreferencesStore()
 const session = useSessionStore()
+const { openImport } = useCsvImport()
 
 const upcoming = computed(() =>
   session.forecast.items.slice(0, MAXIMUM_UPCOMING_PAYMENT_COUNT),
+)
+const hiddenUpcomingCount = computed(
+  () => session.forecast.items.length - upcoming.value.length,
 )
 const nextPaymentLabel = computed(() => {
   const first = upcoming.value[0]
@@ -60,7 +66,12 @@ function formatTotal(total: CurrencyAmountTotal): string {
       v-if="!session.hasData"
       :title="preferences.t('Subscriptions_NoDataTitle')"
       :description="preferences.t('Subscriptions_NoDataDescription')"
-    />
+    >
+      <Button @click="openImport()">
+        <Upload />
+        {{ preferences.t("Settings_ImportCsv") }}
+      </Button>
+    </EmptyState>
 
     <template v-else>
       <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -135,7 +146,7 @@ function formatTotal(total: CurrencyAmountTotal): string {
             class="flex items-start justify-between gap-3 rounded-lg border p-3"
           >
             <p class="font-medium">{{ total.currencyCode }}</p>
-            <p class="text-right font-semibold">{{ formatTotal(total) }}</p>
+            <p class="text-right font-semibold tabular-nums">{{ formatTotal(total) }}</p>
           </div>
         </CardContent>
       </Card>
@@ -157,7 +168,7 @@ function formatTotal(total: CurrencyAmountTotal): string {
               {{ preferences.t("Forecast_DaysOverdue", item.daysOverdue) }}
             </ItemDescription>
           </ItemContent>
-          <Badge variant="destructive">
+          <Badge variant="destructive" class="tabular-nums">
             {{ formatMoney(item.subscription.billingAmount, preferences.resolvedLocale) }}
           </Badge>
         </Item>
@@ -172,6 +183,7 @@ function formatTotal(total: CurrencyAmountTotal): string {
           <CardContent class="flex flex-col gap-3">
             <EmptyState
               v-if="session.forecast.currencyTotals.length === 0"
+              class="border-0"
               :title="preferences.t('Dashboard_EmptyCashTitle')"
               :description="preferences.t('Dashboard_EmptyCashDescription')"
             />
@@ -182,12 +194,12 @@ function formatTotal(total: CurrencyAmountTotal): string {
             >
               <div>
                 <p class="font-medium">{{ total.currencyCode }}</p>
-                <p class="text-muted-foreground text-xs">
+                <p class="text-muted-foreground text-xs tabular-nums">
                   {{ preferences.t("Column_Fixed") }}
                   {{ formatMoney({ amount: total.fixedAmount, currencyCode: total.currencyCode, currencyKind: total.currencyKind }, preferences.resolvedLocale) }}
                 </p>
               </div>
-              <p class="text-right font-semibold">
+              <p class="text-right font-semibold tabular-nums">
                 {{ formatMoney({ amount: total.totalAmount, currencyCode: total.currencyCode, currencyKind: total.currencyKind }, preferences.resolvedLocale) }}
               </p>
             </div>
@@ -202,6 +214,7 @@ function formatTotal(total: CurrencyAmountTotal): string {
           <CardContent class="flex flex-col gap-2">
             <EmptyState
               v-if="upcoming.length === 0"
+              class="border-0"
               :title="preferences.t('Dashboard_EmptyUpcomingTitle')"
               :description="preferences.t('Dashboard_EmptyUpcomingDescription')"
             />
@@ -214,10 +227,13 @@ function formatTotal(total: CurrencyAmountTotal): string {
                   {{ formatIsoDate(item.scheduledOn, preferences.resolvedLocale) }}
                 </ItemDescription>
               </ItemContent>
-              <Badge variant="secondary">
+              <Badge variant="secondary" class="tabular-nums">
                 {{ formatMoney(item.amount, preferences.resolvedLocale) }}
               </Badge>
             </Item>
+            <p v-if="hiddenUpcomingCount > 0" class="text-muted-foreground text-sm">
+              {{ preferences.t("Dashboard_UpcomingMore", hiddenUpcomingCount) }}
+            </p>
           </CardContent>
         </Card>
       </div>

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue"
+import { Upload } from "@lucide/vue"
 
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Table,
@@ -11,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import EmptyState from "@/components/EmptyState.vue"
+import { useCsvImport } from "@/composables/useCsvImport"
 import { monthlyEquivalentAmount } from "@/cashflow/cost"
 import type { CurrencyAmountTotal, Subscription } from "@/domain/types"
 import { cycleLabel, formatMoney } from "@/i18n/format"
@@ -24,6 +27,7 @@ type CostRow = {
 
 const preferences = usePreferencesStore()
 const session = useSessionStore()
+const { openImport } = useCsvImport()
 
 const rows = computed<CostRow[]>(() => {
   return session.subscriptions
@@ -79,7 +83,12 @@ function formatMonthly(subscription: Subscription, amount: number): string {
       v-if="!session.hasData"
       :title="preferences.t('Subscriptions_NoDataTitle')"
       :description="preferences.t('Subscriptions_NoDataDescription')"
-    />
+    >
+      <Button @click="openImport()">
+        <Upload />
+        {{ preferences.t("Settings_ImportCsv") }}
+      </Button>
+    </EmptyState>
 
     <template v-else>
       <p v-if="session.excludedCount > 0" class="text-muted-foreground text-sm">
@@ -93,6 +102,7 @@ function formatMonthly(subscription: Subscription, amount: number): string {
         <CardContent class="flex flex-col gap-3">
           <EmptyState
             v-if="session.monthlyCostTotals.length === 0"
+            class="border-0"
             :title="preferences.t('Cost_EmptyTitle')"
             :description="preferences.t('Cost_EmptyDescription')"
           />
@@ -102,7 +112,7 @@ function formatMonthly(subscription: Subscription, amount: number): string {
             class="flex items-start justify-between gap-3 rounded-lg border p-3"
           >
             <p class="font-medium">{{ total.currencyCode }}</p>
-            <p class="text-right font-semibold">{{ formatTotal(total) }}</p>
+            <p class="text-right font-semibold tabular-nums">{{ formatTotal(total) }}</p>
           </div>
         </CardContent>
       </Card>
@@ -115,6 +125,7 @@ function formatMonthly(subscription: Subscription, amount: number): string {
         <CardContent>
           <EmptyState
             v-if="rows.length === 0"
+            class="border-0"
             :title="preferences.t('Cost_EmptyTitle')"
             :description="preferences.t('Cost_EmptyDescription')"
           />
@@ -142,10 +153,10 @@ function formatMonthly(subscription: Subscription, amount: number): string {
                       )
                     }}
                   </TableCell>
-                  <TableCell>
+                  <TableCell class="tabular-nums">
                     {{ formatMoney(row.subscription.billingAmount, preferences.resolvedLocale) }}
                   </TableCell>
-                  <TableCell>
+                  <TableCell class="tabular-nums">
                     {{ formatMonthly(row.subscription, row.monthlyAmount) }}
                   </TableCell>
                 </TableRow>

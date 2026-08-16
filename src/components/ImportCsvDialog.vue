@@ -223,7 +223,7 @@ function confirmImport(): void {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {{ preferences.t("Settings_ImportIssueLine", issue.rowNumber, issueMessage(preferences.resolvedLocale, issue.code)) }}
+                    {{ issueMessage(preferences.resolvedLocale, issue.code) }}
                   </TableCell>
                 </TableRow>
               </TableBody>

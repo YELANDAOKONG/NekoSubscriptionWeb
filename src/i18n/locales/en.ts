@@ -33,6 +33,7 @@ export const en = {
   Dashboard_EmptyCashDescription: "Import an active subscription with a billing date to populate the forecast.",
   Dashboard_UpcomingTitle: "Coming up next",
   Dashboard_UpcomingDescription: "The nearest scheduled billing dates in the selected period.",
+  Dashboard_UpcomingMore: "+{0} more scheduled in this period",
   Dashboard_EmptyUpcomingTitle: "Nothing is due yet",
   Dashboard_EmptyUpcomingDescription: "Upcoming charges appear here after a billing date is scheduled.",
   Column_Currency: "Currency",
@@ -95,7 +96,6 @@ export const en = {
   Settings_ConfirmImport: "Import",
   Settings_ImportPreviewSummary:
     "{0} valid row(s), {1} error(s), and {2} warning(s). The header text is ignored; columns are matched by position.",
-  Settings_ImportIssueLine: "Row {0}: {1}",
   Settings_ImportDialogTitle: "Import subscriptions from CSV",
   Settings_SessionTitle: "This session",
   Settings_SessionDescription:
