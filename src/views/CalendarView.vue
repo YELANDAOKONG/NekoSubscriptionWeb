@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ChevronLeft, ChevronRight, Upload } from "@lucide/vue"
-import { computed, ref, watch } from "vue"
+import { computed, nextTick, ref, watch } from "vue"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,7 @@ import { projectCashFlow } from "@/cashflow/project"
 import {
   addDays,
   addMonths,
+  daysPerWeek,
   startOfMonth,
   weekdayMondayFirst,
 } from "@/domain/dates"
@@ -46,6 +47,8 @@ const { openImport } = useCsvImport()
 const today = useToday()
 const displayedMonth = ref(startOfMonth(today.value))
 const selectedDate = ref(today.value)
+const calendarGrid = ref<HTMLElement | null>(null)
+const weekLength = daysPerWeek()
 
 watch(displayedMonth, (month) => {
   if (!selectedDate.value.startsWith(month.slice(0, 7))) {
@@ -78,6 +81,14 @@ const days = computed<CalendarDay[]>(() => {
   })
 })
 
+const weeks = computed(() => {
+  const result: CalendarDay[][] = []
+  for (let index = 0; index < days.value.length; index += weekLength) {
+    result.push(days.value.slice(index, index + weekLength))
+  }
+  return result
+})
+
 const selectedDay = computed(() =>
   days.value.find((day) => day.date === selectedDate.value) ?? null,
 )
@@ -98,6 +109,62 @@ function goToToday(): void {
 function selectDate(date: string): void {
   selectedDate.value = date
   displayedMonth.value = startOfMonth(date)
+}
+
+function focusSelectedDay(): void {
+  calendarGrid.value
+    ?.querySelector<HTMLButtonElement>(`[data-calendar-day="${selectedDate.value}"]`)
+    ?.focus()
+}
+
+function moveSelectedDay(dayOffset: number): void {
+  selectDate(addDays(selectedDate.value, dayOffset))
+  void nextTick(focusSelectedDay)
+}
+
+function onCalendarGridKeydown(event: KeyboardEvent): void {
+  if (event.altKey || event.ctrlKey || event.metaKey) {
+    return
+  }
+
+  switch (event.key) {
+    case "ArrowLeft":
+      event.preventDefault()
+      moveSelectedDay(-1)
+      break
+    case "ArrowRight":
+      event.preventDefault()
+      moveSelectedDay(1)
+      break
+    case "ArrowUp":
+      event.preventDefault()
+      moveSelectedDay(-weekLength)
+      break
+    case "ArrowDown":
+      event.preventDefault()
+      moveSelectedDay(weekLength)
+      break
+    case "Home":
+      event.preventDefault()
+      moveSelectedDay(-weekdayMondayFirst(selectedDate.value))
+      break
+    case "End":
+      event.preventDefault()
+      moveSelectedDay(weekLength - 1 - weekdayMondayFirst(selectedDate.value))
+      break
+    case "PageUp":
+      event.preventDefault()
+      selectDate(addMonths(selectedDate.value, -1))
+      void nextTick(focusSelectedDay)
+      break
+    case "PageDown":
+      event.preventDefault()
+      selectDate(addMonths(selectedDate.value, 1))
+      void nextTick(focusSelectedDay)
+      break
+    default:
+      break
+  }
 }
 </script>
 
@@ -140,46 +207,71 @@ function selectDate(date: string): void {
           </div>
         </CardHeader>
         <CardContent>
-          <div class="grid grid-cols-7 gap-1 text-center text-xs font-medium sm:text-sm">
-            <div v-for="key in WEEKDAY_KEYS" :key="key" class="text-muted-foreground py-1">
-              {{ preferences.t(key) }}
-            </div>
-          </div>
-          <div class="mt-1 grid grid-cols-7 gap-1">
-            <button
-              v-for="day in days"
-              :key="day.date"
-              type="button"
-              :aria-pressed="day.isSelected"
-              :class="cn(
-                'hover:bg-accent flex min-h-14 flex-col items-start rounded-md border p-1 text-left sm:min-h-24 sm:p-2',
-                day.inMonth ? 'bg-background' : 'bg-muted/40 text-muted-foreground',
-                day.isSelected && 'border-primary ring-ring ring-1',
-                day.isToday && !day.isSelected && 'border-primary/40',
-              )"
-              @click="selectDate(day.date)"
-            >
-              <span class="flex w-full items-center justify-between text-xs sm:text-sm">
-                <span :class="cn('font-medium', day.isToday && 'text-primary')">
-                  {{ Number(day.date.slice(8)) }}
-                </span>
-                <Badge v-if="day.payments.length > 0" variant="secondary" class="h-5 px-1 text-[10px] sm:hidden">
-                  {{ day.payments.length }}
-                </Badge>
-              </span>
-              <div class="mt-1 hidden w-full flex-col gap-1 sm:flex">
-                <span
-                  v-for="payment in day.payments.slice(0, 2)"
-                  :key="`${payment.subscriptionId}-${payment.scheduledOn}`"
-                  class="truncate text-[11px]"
-                >
-                  {{ payment.serviceName }}
-                </span>
-                <span v-if="day.payments.length > 2" class="text-muted-foreground text-[11px]">
-                  {{ preferences.t("Calendar_AdditionalPayments", day.payments.length - 2) }}
-                </span>
+          <div
+            ref="calendarGrid"
+            role="grid"
+            :aria-label="preferences.t('Calendar_GridLabel')"
+            @keydown="onCalendarGridKeydown"
+          >
+            <div role="row" class="grid grid-cols-7 gap-1 text-center text-xs font-medium sm:text-sm">
+              <div
+                v-for="key in WEEKDAY_KEYS"
+                :key="key"
+                role="columnheader"
+                class="text-muted-foreground py-1"
+              >
+                {{ preferences.t(key) }}
               </div>
-            </button>
+            </div>
+            <div class="mt-1 grid gap-1">
+              <div
+                v-for="(week, weekIndex) in weeks"
+                :key="weekIndex"
+                role="row"
+                class="grid grid-cols-7 gap-1"
+              >
+                <button
+                  v-for="day in week"
+                  :key="day.date"
+                  type="button"
+                  role="gridcell"
+                  :data-calendar-day="day.date"
+                  :tabindex="day.isSelected ? 0 : -1"
+                  :aria-pressed="day.isSelected"
+                  :aria-selected="day.isSelected"
+                  :aria-current="day.isToday ? 'date' : undefined"
+                  :aria-label="formatIsoDate(day.date, preferences.resolvedLocale)"
+                  :class="cn(
+                    'hover:bg-accent flex min-h-14 flex-col items-start rounded-md border p-1 text-left transition-transform duration-100 ease-out active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100 sm:min-h-24 sm:p-2',
+                    day.inMonth ? 'bg-background' : 'bg-muted/40 text-muted-foreground',
+                    day.isSelected && 'border-primary ring-ring ring-1',
+                    day.isToday && !day.isSelected && 'border-primary/40',
+                  )"
+                  @click="selectDate(day.date)"
+                >
+                  <span class="flex w-full items-center justify-between text-xs sm:text-sm">
+                    <span :class="cn('font-medium', day.isToday && 'text-primary')">
+                      {{ Number(day.date.slice(8)) }}
+                    </span>
+                    <Badge v-if="day.payments.length > 0" variant="secondary" class="h-5 px-1 text-[10px] sm:hidden">
+                      {{ day.payments.length }}
+                    </Badge>
+                  </span>
+                  <div class="mt-1 hidden w-full flex-col gap-1 sm:flex">
+                    <span
+                      v-for="payment in day.payments.slice(0, 2)"
+                      :key="`${payment.subscriptionId}-${payment.scheduledOn}`"
+                      class="truncate text-[11px]"
+                    >
+                      {{ payment.serviceName }}
+                    </span>
+                    <span v-if="day.payments.length > 2" class="text-muted-foreground text-[11px]">
+                      {{ preferences.t("Calendar_AdditionalPayments", day.payments.length - 2) }}
+                    </span>
+                  </div>
+                </button>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

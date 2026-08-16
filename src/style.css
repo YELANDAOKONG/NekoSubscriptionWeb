@@ -127,6 +127,13 @@
     color-scheme: dark;
   }
 
+  @media (prefers-reduced-motion: no-preference) {
+    html,
+    body {
+      transition: background-color 200ms ease, color 200ms ease;
+    }
+  }
+
   html,
   body,
   #app {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { AlertCircle, FileUp } from "@lucide/vue"
+import { useEventListener } from "@vueuse/core"
 import { computed, ref, watch } from "vue"
 import { toast } from "vue-sonner"
 
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/dialog"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
+import { Spinner } from "@/components/ui/spinner"
 import {
   Table,
   TableBody,
@@ -32,10 +34,11 @@ import { cn } from "@/lib/utils"
 import { usePreferencesStore } from "@/stores/preferences"
 import { useSessionStore } from "@/stores/session"
 
-const { importOpen, queuedFile, takeQueuedFile } = useCsvImport()
+const { importOpen, queuedFile, takeQueuedFile, openImport } = useCsvImport()
 const preferences = usePreferencesStore()
 const session = useSessionStore()
 const fileInput = ref<HTMLInputElement | null>(null)
+const dropZone = ref<HTMLButtonElement | null>(null)
 const parseResult = ref<CsvParseResult | null>(null)
 const selectedName = ref<string | null>(null)
 const isReading = ref(false)
@@ -88,6 +91,35 @@ function resetPreview(): void {
 function chooseFile(): void {
   fileInput.value?.click()
 }
+
+function onOpenAutoFocus(event: Event): void {
+  if (!dropZone.value) {
+    return
+  }
+
+  event.preventDefault()
+  dropZone.value.focus()
+}
+
+function onImportShortcut(event: KeyboardEvent): void {
+  if (event.defaultPrevented || event.repeat || event.altKey || event.shiftKey) {
+    return
+  }
+
+  if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== "o") {
+    return
+  }
+
+  event.preventDefault()
+  if (importOpen.value) {
+    chooseFile()
+    return
+  }
+
+  openImport()
+}
+
+useEventListener(window, "keydown", onImportShortcut)
 
 async function onFileChange(event: Event): Promise<void> {
   const input = event.target as HTMLInputElement
@@ -148,7 +180,10 @@ function confirmImport(): void {
 
 <template>
   <Dialog v-model:open="importOpen">
-    <DialogContent class="flex max-h-[90vh] max-w-[calc(100%-1.5rem)] flex-col overflow-hidden sm:max-w-2xl">
+    <DialogContent
+      class="flex max-h-[90vh] max-w-[calc(100%-1.5rem)] flex-col overflow-hidden sm:max-w-2xl"
+      @open-auto-focus="onOpenAutoFocus"
+    >
       <DialogHeader>
         <DialogTitle>{{ preferences.t("Settings_ImportDialogTitle") }}</DialogTitle>
         <DialogDescription>
@@ -165,10 +200,12 @@ function confirmImport(): void {
           @change="onFileChange"
         >
         <button
+          ref="dropZone"
           type="button"
           :disabled="isReading"
+          :aria-busy="isReading"
           :class="cn(
-            'hover:bg-accent/40 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors',
+            'hover:bg-accent/40 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-all duration-100 ease-out active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100',
             isDialogDragging ? 'border-primary bg-accent/60' : 'border-muted-foreground/30',
           )"
           @click="chooseFile"
@@ -176,11 +213,18 @@ function confirmImport(): void {
           @dragleave="onDialogDragLeave"
           @drop="onDialogDrop"
         >
-          <FileUp class="text-muted-foreground size-8" />
+          <Spinner v-if="isReading" class="size-8" />
+          <FileUp v-else class="text-muted-foreground size-8" />
           <span class="text-sm font-medium">
-            {{ isDialogDragging ? preferences.t("Import_DropActive") : preferences.t("Import_DropHint") }}
+            {{
+              isReading
+                ? preferences.t("Import_Reading")
+                : isDialogDragging
+                  ? preferences.t("Import_DropActive")
+                  : preferences.t("Import_DropHint")
+            }}
           </span>
-          <span v-if="selectedName" class="text-muted-foreground max-w-full truncate text-xs">
+          <span v-if="selectedName && !isReading" class="text-muted-foreground max-w-full truncate text-xs">
             {{ selectedName }}
           </span>
         </button>
@@ -236,7 +280,7 @@ function confirmImport(): void {
         <Button type="button" variant="outline" @click="importOpen = false">
           {{ preferences.t("Common_Cancel") }}
         </Button>
-        <Button type="button" :disabled="!preview?.canImport" @click="confirmImport">
+        <Button type="button" :disabled="!preview?.canImport || isReading" @click="confirmImport">
           {{ preferences.t("Settings_ConfirmImport") }}
         </Button>
       </DialogFooter>

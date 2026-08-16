@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed } from "vue"
+import { useResizeObserver } from "@vueuse/core"
+import { computed, ref } from "vue"
 import { AlertTriangle, Upload } from "@lucide/vue"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -40,6 +41,39 @@ const periodValue = computed({
     session.setForecastDayCount(Number(value))
   },
 })
+const periodScroller = ref<HTMLElement | null>(null)
+const canScrollPeriodLeft = ref(false)
+const canScrollPeriodRight = ref(false)
+
+function updatePeriodFade(): void {
+  const scroller = periodScroller.value
+  if (!scroller) {
+    canScrollPeriodLeft.value = false
+    canScrollPeriodRight.value = false
+    return
+  }
+
+  canScrollPeriodLeft.value = scroller.scrollLeft > 1
+  canScrollPeriodRight.value = scroller.scrollLeft + scroller.clientWidth < scroller.scrollWidth - 1
+}
+
+const periodMaskStyle = computed(() => {
+  if (!canScrollPeriodLeft.value && !canScrollPeriodRight.value) {
+    return undefined
+  }
+
+  const start = canScrollPeriodLeft.value ? "transparent 0, black 12px" : "black 0"
+  const end = canScrollPeriodRight.value
+    ? "black calc(100% - 12px), transparent 100%"
+    : "black 100%"
+  const image = `linear-gradient(to right, ${start}, ${end})`
+  return {
+    maskImage: image,
+    WebkitMaskImage: image,
+  }
+})
+
+useResizeObserver(periodScroller, updatePeriodFade)
 
 function formatTotal(total: CurrencyAmountTotal): string {
   return formatMoney(
@@ -106,7 +140,12 @@ function formatTotal(total: CurrencyAmountTotal): string {
 
       <div class="flex flex-col gap-3">
         <Tabs v-model="periodValue">
-          <div class="-mx-1 overflow-x-auto px-1">
+          <div
+            ref="periodScroller"
+            class="-mx-1 overflow-x-auto px-1"
+            :style="periodMaskStyle"
+            @scroll="updatePeriodFade"
+          >
             <TabsList>
               <TabsTrigger
                 v-for="days in FORECAST_PERIODS"

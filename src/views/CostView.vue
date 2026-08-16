@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed } from "vue"
+import { computed, ref } from "vue"
 import { Upload } from "@lucide/vue"
 
+import EmptyState from "@/components/EmptyState.vue"
+import LayoutToggle, { type ListLayout } from "@/components/LayoutToggle.vue"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Table,
   TableBody,
@@ -12,7 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import EmptyState from "@/components/EmptyState.vue"
 import { useCsvImport } from "@/composables/useCsvImport"
 import { monthlyEquivalentAmount } from "@/cashflow/cost"
 import type { CurrencyAmountTotal, Subscription } from "@/domain/types"
@@ -28,6 +29,7 @@ type CostRow = {
 const preferences = usePreferencesStore()
 const session = useSessionStore()
 const { openImport } = useCsvImport()
+const layout = ref<ListLayout>("table")
 
 const rows = computed<CostRow[]>(() => {
   return session.subscriptions
@@ -121,6 +123,9 @@ function formatMonthly(subscription: Subscription, amount: number): string {
         <CardHeader>
           <CardTitle>{{ preferences.t("Cost_BreakdownTitle") }}</CardTitle>
           <CardDescription>{{ preferences.t("Cost_BreakdownDescription") }}</CardDescription>
+          <CardAction v-if="rows.length > 0">
+            <LayoutToggle v-model="layout" />
+          </CardAction>
         </CardHeader>
         <CardContent>
           <EmptyState
@@ -129,11 +134,43 @@ function formatMonthly(subscription: Subscription, amount: number): string {
             :title="preferences.t('Cost_EmptyTitle')"
             :description="preferences.t('Cost_EmptyDescription')"
           />
+          <div v-else-if="layout === 'cards'" class="grid gap-3 md:grid-cols-2">
+            <article
+              v-for="row in rows"
+              :key="row.subscription.id"
+              class="flex flex-col gap-2 rounded-lg border p-3"
+            >
+              <div class="min-w-0">
+                <p class="font-medium">{{ row.subscription.serviceName }}</p>
+                <p class="text-muted-foreground truncate text-sm">{{ row.subscription.providerName }}</p>
+              </div>
+              <dl class="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
+                <dt class="text-muted-foreground">{{ preferences.t("Column_Cycle") }}</dt>
+                <dd class="text-right">
+                  {{
+                    cycleLabel(
+                      preferences.resolvedLocale,
+                      row.subscription.intervalUnit,
+                      row.subscription.intervalCount,
+                    )
+                  }}
+                </dd>
+                <dt class="text-muted-foreground">{{ preferences.t("Column_Amount") }}</dt>
+                <dd class="text-right tabular-nums">
+                  {{ formatMoney(row.subscription.billingAmount, preferences.resolvedLocale) }}
+                </dd>
+                <dt class="text-muted-foreground">{{ preferences.t("Column_MonthlyCost") }}</dt>
+                <dd class="text-right font-medium tabular-nums">
+                  {{ formatMonthly(row.subscription, row.monthlyAmount) }}
+                </dd>
+              </dl>
+            </article>
+          </div>
           <div v-else class="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{{ preferences.t("Column_Provider") }}</TableHead>
+                  <TableHead class="sticky left-0 z-10 bg-card">{{ preferences.t("Column_Provider") }}</TableHead>
                   <TableHead>{{ preferences.t("Column_Service") }}</TableHead>
                   <TableHead>{{ preferences.t("Column_Cycle") }}</TableHead>
                   <TableHead>{{ preferences.t("Column_Amount") }}</TableHead>
@@ -141,8 +178,10 @@ function formatMonthly(subscription: Subscription, amount: number): string {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow v-for="row in rows" :key="row.subscription.id">
-                  <TableCell class="font-medium">{{ row.subscription.providerName }}</TableCell>
+                <TableRow v-for="row in rows" :key="row.subscription.id" class="group">
+                  <TableCell class="sticky left-0 z-10 bg-card font-medium group-hover:bg-muted/50">
+                    {{ row.subscription.providerName }}
+                  </TableCell>
                   <TableCell>{{ row.subscription.serviceName }}</TableCell>
                   <TableCell>
                     {{
