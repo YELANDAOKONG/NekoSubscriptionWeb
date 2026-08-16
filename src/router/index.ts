@@ -1,11 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router"
 
-import AboutView from "@/views/AboutView.vue"
-import CalendarView from "@/views/CalendarView.vue"
-import CostView from "@/views/CostView.vue"
 import ForecastView from "@/views/ForecastView.vue"
-import SettingsView from "@/views/SettingsView.vue"
-import SubscriptionsView from "@/views/SubscriptionsView.vue"
+
+const AboutView = () => import("@/views/AboutView.vue")
+const CalendarView = () => import("@/views/CalendarView.vue")
+const CostView = () => import("@/views/CostView.vue")
+const SettingsView = () => import("@/views/SettingsView.vue")
+const SubscriptionsView = () => import("@/views/SubscriptionsView.vue")
 
 export const router = createRouter({
   history: createWebHistory(),
