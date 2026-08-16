@@ -30,6 +30,8 @@ const pageTitle = computed(() => {
       return preferences.t("Nav_Calendar")
     case "settings":
       return preferences.t("Nav_Settings")
+    case "about":
+      return preferences.t("Nav_About")
     default:
       return preferences.t("Forecast_Title")
   }

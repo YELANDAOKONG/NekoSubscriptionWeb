@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   CalendarDays,
+  Info,
   LayoutDashboard,
   Settings,
   Wallet,
@@ -60,6 +61,22 @@ const primaryItems: NavItem[] = [
   },
 ]
 
+const footerItems: NavItem[] = [
+  {
+    to: "/settings",
+    name: "settings",
+    title: "Nav_Settings",
+    subtitle: "Nav_SettingsSubtitle",
+    icon: Settings,
+  },
+  {
+    to: "/about",
+    name: "about",
+    title: "Nav_About",
+    subtitle: "Nav_AboutSubtitle",
+    icon: Info,
+  },
+]
 const preferences = usePreferencesStore()
 const session = useSessionStore()
 const route = useRoute()
@@ -133,20 +150,20 @@ function itemTooltip(item: NavItem): string {
     <SidebarFooter>
       <SidebarSeparator class="mx-0" />
       <SidebarMenu>
-        <SidebarMenuItem>
+        <SidebarMenuItem v-for="item in footerItems" :key="item.to">
           <SidebarMenuButton
             as-child
             size="lg"
             class="group-data-[collapsible=icon]:p-2!"
-            :is-active="route.name === 'settings'"
-            :tooltip="preferences.t('Nav_Settings')"
+            :is-active="route.name === item.name"
+            :tooltip="preferences.t(item.title)"
           >
-            <RouterLink to="/settings">
-              <Settings />
+            <RouterLink :to="item.to">
+              <component :is="item.icon" />
               <div class="grid min-w-0 flex-1 text-left leading-tight">
-                <span class="truncate">{{ preferences.t("Nav_Settings") }}</span>
+                <span class="truncate">{{ preferences.t(item.title) }}</span>
                 <span class="text-muted-foreground truncate text-xs">
-                  {{ preferences.t("Nav_SettingsSubtitle") }}
+                  {{ preferences.t(item.subtitle) }}
                 </span>
               </div>
             </RouterLink>

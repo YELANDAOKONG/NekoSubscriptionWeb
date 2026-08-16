@@ -88,6 +88,7 @@ Dashboard periods: 3 / 7 / 14 / 30 / 90 days. Also show overdue items (recorded 
 | `/subscriptions` | Imported table | Table, badges, filter input, empty |
 | `/calendar` | Month charges | Compose `Calendar` primitives; it is a date-picker kit, not a billing month view |
 | `/settings` | Language and theme | Select; persist on change |
+| `/about` | Project intro and 13-column CSV format | Cards, table, GitHub link |
 
 Import from the chrome: file picker → dialog preview (valid count, error/warning table) → confirm into the session store → toast. Never silently drop invalid rows.
 
