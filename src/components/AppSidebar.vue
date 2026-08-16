@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   CalendarDays,
+  Coins,
   Info,
   LayoutDashboard,
   Settings,
@@ -43,6 +44,13 @@ const primaryItems: NavItem[] = [
     title: "Nav_Overview",
     subtitle: "Nav_OverviewSubtitle",
     icon: LayoutDashboard,
+  },
+  {
+    to: "/cost",
+    name: "cost",
+    title: "Nav_Cost",
+    subtitle: "Nav_CostSubtitle",
+    icon: Coins,
   },
   {
     to: "/subscriptions",

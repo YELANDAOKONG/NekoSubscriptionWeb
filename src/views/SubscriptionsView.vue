@@ -20,6 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import EmptyState from "@/components/EmptyState.vue"
+import { monthlyEquivalentAmount } from "@/cashflow/cost"
 import { cycleLabel, formatIsoDate, formatMoney, paymentChannelLabel } from "@/i18n/format"
 import { usePreferencesStore } from "@/stores/preferences"
 import { useSessionStore } from "@/stores/session"
@@ -142,6 +143,7 @@ function dateLabel(iso: string | null, emptyKey: "Common_Unknown" | "Common_NotS
               <TableHead>{{ preferences.t("Column_Account") }}</TableHead>
               <TableHead>{{ preferences.t("Column_Amount") }}</TableHead>
               <TableHead>{{ preferences.t("Column_Cycle") }}</TableHead>
+              <TableHead>{{ preferences.t("Column_MonthlyCost") }}</TableHead>
               <TableHead>{{ preferences.t("Column_StartDate") }}</TableHead>
               <TableHead>{{ preferences.t("Column_NextBilling") }}</TableHead>
               <TableHead>{{ preferences.t("Column_Status") }}</TableHead>
@@ -160,6 +162,17 @@ function dateLabel(iso: string | null, emptyKey: "Common_Unknown" | "Common_NotS
               </TableCell>
               <TableCell>
                 {{ cycleLabel(preferences.resolvedLocale, subscription.intervalUnit, subscription.intervalCount) }}
+              </TableCell>
+              <TableCell>
+                {{
+                  formatMoney(
+                    {
+                      ...subscription.billingAmount,
+                      amount: monthlyEquivalentAmount(subscription),
+                    },
+                    preferences.resolvedLocale,
+                  )
+                }}
               </TableCell>
               <TableCell>{{ dateLabel(subscription.startsOn, "Common_Unknown") }}</TableCell>
               <TableCell>{{ dateLabel(subscription.nextBillingOn, "Common_NotScheduled") }}</TableCell>

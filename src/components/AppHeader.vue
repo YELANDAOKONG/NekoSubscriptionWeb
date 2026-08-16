@@ -24,6 +24,8 @@ watch(() => route.fullPath, () => {
 
 const pageTitle = computed(() => {
   switch (route.name) {
+    case "cost":
+      return preferences.t("Nav_Cost")
     case "subscriptions":
       return preferences.t("Nav_Subscriptions")
     case "calendar":

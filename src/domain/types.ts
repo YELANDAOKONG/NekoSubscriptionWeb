@@ -104,6 +104,12 @@ export type CashFlowCurrencyTotal = {
   totalAmount: number
 }
 
+export type CurrencyAmountTotal = {
+  currencyCode: string
+  currencyKind: CurrencyKind
+  totalAmount: number
+}
+
 export type CashFlowProjection = {
   startsOn: string
   endsOn: string

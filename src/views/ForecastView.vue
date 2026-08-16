@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Item, ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import EmptyState from "@/components/EmptyState.vue"
+import type { CurrencyAmountTotal } from "@/domain/types"
 import { FORECAST_PERIODS, MAXIMUM_UPCOMING_PAYMENT_COUNT } from "@/domain/types"
 import { formatIsoDate, formatMoney } from "@/i18n/format"
 import { usePreferencesStore } from "@/stores/preferences"
@@ -33,6 +34,17 @@ const periodValue = computed({
     session.setForecastDayCount(Number(value))
   },
 })
+
+function formatTotal(total: CurrencyAmountTotal): string {
+  return formatMoney(
+    {
+      amount: total.totalAmount,
+      currencyCode: total.currencyCode,
+      currencyKind: total.currencyKind,
+    },
+    preferences.resolvedLocale,
+  )
+}
 </script>
 
 <template>
@@ -110,6 +122,23 @@ const periodValue = computed({
           {{ preferences.t("Forecast_OverdueDescription") }}
         </AlertDescription>
       </Alert>
+
+      <Card v-if="session.overdueCurrencyTotals.length > 0">
+        <CardHeader>
+          <CardTitle>{{ preferences.t("Forecast_OverdueFundsTitle") }}</CardTitle>
+          <CardDescription>{{ preferences.t("Forecast_OverdueFundsDescription") }}</CardDescription>
+        </CardHeader>
+        <CardContent class="flex flex-col gap-3">
+          <div
+            v-for="total in session.overdueCurrencyTotals"
+            :key="`${total.currencyCode}-${total.currencyKind}`"
+            class="flex items-start justify-between gap-3 rounded-lg border p-3"
+          >
+            <p class="font-medium">{{ total.currencyCode }}</p>
+            <p class="text-right font-semibold">{{ formatTotal(total) }}</p>
+          </div>
+        </CardContent>
+      </Card>
 
       <div v-if="session.overduePayments.length > 0" class="grid gap-2">
         <Item

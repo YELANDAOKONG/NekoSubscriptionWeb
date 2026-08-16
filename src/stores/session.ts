@@ -1,6 +1,7 @@
 import { defineStore } from "pinia"
 import { computed, ref } from "vue"
 
+import { summarizeMonthlyCost, summarizeOverdueFunds } from "@/cashflow/cost"
 import { projectCashFlow } from "@/cashflow/project"
 import { addDays, compareIso, dayNumber, todayIso } from "@/domain/dates"
 import {
@@ -49,6 +50,9 @@ export const useSessionStore = defineStore("session", () => {
     return projectCashFlow(subscriptions.value, startsOn, endsOn)
   })
 
+  const monthlyCostTotals = computed(() => summarizeMonthlyCost(subscriptions.value))
+  const overdueCurrencyTotals = computed(() => summarizeOverdueFunds(overduePayments.value))
+
   function replaceSubscriptions(next: Subscription[], fileName: string): void {
     subscriptions.value = next
     sourceName.value = fileName
@@ -71,7 +75,9 @@ export const useSessionStore = defineStore("session", () => {
     activeSubscriptions,
     excludedCount,
     overduePayments,
+    overdueCurrencyTotals,
     forecast,
+    monthlyCostTotals,
     replaceSubscriptions,
     clear,
     setForecastDayCount,

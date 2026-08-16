@@ -7,6 +7,8 @@ export const en = {
   Nav_OverviewSubtitle: "Cash flow and renewals",
   Nav_Subscriptions: "Subscriptions",
   Nav_SubscriptionsSubtitle: "Browse imported rows",
+  Nav_Cost: "Cost",
+  Nav_CostSubtitle: "Monthly run-rate",
   Nav_Calendar: "Calendar",
   Nav_CalendarSubtitle: "Monthly charges",
   Nav_Settings: "Settings",
@@ -15,6 +17,7 @@ export const en = {
   Nav_AboutSubtitle: "Project and CSV format",
   Page_OverviewSubtitle: "Upcoming payments and budget outlook for this imported file.",
   Page_SubscriptionsSubtitle: "Search, sort, and inspect every row from the current CSV import.",
+  Page_CostSubtitle: "Equivalent monthly run-rate by original currency. Daily fees use 365 days per year and weekly fees use 52 weeks. Amounts are not converted.",
   Page_CalendarSubtitle: "See scheduled charges on a monthly calendar.",
   Page_SettingsSubtitle: "Language and theme are saved on this device. CSV data is not.",
   Page_AboutSubtitle: "What this web app does, and the 13-column CSV it reads.",
@@ -40,6 +43,7 @@ export const en = {
   Column_Provider: "Provider",
   Column_Status: "Status",
   Column_Amount: "Amount",
+  Column_MonthlyCost: "Monthly cost",
   Column_NextBilling: "Next billing",
   Column_StartDate: "Start date",
   Column_Account: "Account",
@@ -115,6 +119,13 @@ export const en = {
   Forecast_ExcludedSubscriptions:
     "{0} imported subscription(s) are not included because they are marked inactive.",
   Forecast_CashFlowTitle: "Forecast by currency",
+  Cost_Title: "Monthly cost",
+  Cost_Description:
+    "Equivalent monthly run-rate by original currency. Daily fees use 365 days per year and weekly fees use 52 weeks. Amounts are not converted.",
+  Cost_EmptyTitle: "No monthly cost",
+  Cost_EmptyDescription: "Active subscriptions are converted to a monthly run-rate and grouped by currency.",
+  Cost_BreakdownTitle: "By subscription",
+  Cost_BreakdownDescription: "Each included subscription is shown with its original billing amount and monthly equivalent.",
   Forecast_UpcomingDescription: "The nearest payments within the selected forecast period.",
   Forecast_IncludedInBudget: "Included in forecast",
   Forecast_ExcludedFromBudget: "Not included in forecast",
@@ -122,6 +133,9 @@ export const en = {
   Forecast_OverdueDescription:
     "Recorded next billing dates that have passed. Each subscription appears once until its date is updated in a new import.",
   Forecast_DaysOverdue: "{0} day(s) overdue",
+  Forecast_OverdueFundsTitle: "Amount due now",
+  Forecast_OverdueFundsDescription:
+    "Overdue charges totaled by original currency. They are not included in the selected forecast window.",
   Calendar_Today: "Today",
   Calendar_MondayShort: "Mon",
   Calendar_TuesdayShort: "Tue",
