@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AlertCircle } from "@lucide/vue"
+import { AlertCircle, FileUp } from "@lucide/vue"
 import { computed, ref, watch } from "vue"
 import { toast } from "vue-sonner"
 
@@ -22,33 +22,64 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { parseSubscriptionCsv, toSubscriptions } from "@/csv/parse"
-import { CSV_MAXIMUM_FILE_SIZE, type CsvParseResult } from "@/domain/types"
+import { useCsvImport } from "@/composables/useCsvImport"
+import { loadCsvFile, type CsvFileLoadFailure } from "@/csv/file"
+import { toSubscriptions } from "@/csv/parse"
+import type { CsvParseResult } from "@/domain/types"
+import type { MessageKey } from "@/i18n/locales/en"
 import { issueMessage } from "@/i18n/format"
+import { cn } from "@/lib/utils"
 import { usePreferencesStore } from "@/stores/preferences"
 import { useSessionStore } from "@/stores/session"
 
-const open = defineModel<boolean>("open", { default: false })
-
+const { importOpen, queuedFile, takeQueuedFile } = useCsvImport()
 const preferences = usePreferencesStore()
 const session = useSessionStore()
 const fileInput = ref<HTMLInputElement | null>(null)
 const parseResult = ref<CsvParseResult | null>(null)
 const selectedName = ref<string | null>(null)
 const isReading = ref(false)
+const isDialogDragging = ref(false)
 
 const preview = computed(() => parseResult.value?.preview ?? null)
 
-watch(open, (isOpen) => {
+const loadFailureKeys: Record<CsvFileLoadFailure, MessageKey> = {
+  too_large: "Status_CsvTooLarge",
+  unreadable: "Status_CsvPreviewFailed",
+  invalid_type: "Import_InvalidFileType",
+}
+
+watch(importOpen, async (isOpen) => {
   if (!isOpen) {
     resetPreview()
+    return
+  }
+
+  const queued = takeQueuedFile()
+  if (queued) {
+    await applyFile(queued)
   }
 })
+
+watch(
+  () => queuedFile.value,
+  async (file) => {
+    if (file === null || !importOpen.value) {
+      return
+    }
+
+    const queued = takeQueuedFile()
+    if (queued) {
+      await applyFile(queued)
+    }
+  },
+)
 
 function resetPreview(): void {
   parseResult.value = null
   selectedName.value = null
   isReading.value = false
+  isDialogDragging.value = false
   if (fileInput.value) {
     fileInput.value.value = ""
   }
@@ -61,27 +92,43 @@ function chooseFile(): void {
 async function onFileChange(event: Event): Promise<void> {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
-  if (!file) {
-    return
+  if (file) {
+    await applyFile(file)
   }
+}
 
-  if (file.size > CSV_MAXIMUM_FILE_SIZE) {
-    toast.error(preferences.t("Status_CsvTooLarge"))
-    resetPreview()
-    return
-  }
-
+async function applyFile(file: File): Promise<void> {
   isReading.value = true
   try {
-    const text = await file.text()
-    parseResult.value = parseSubscriptionCsv(text)
-    selectedName.value = file.name
-  } catch (error) {
-    console.error("Failed to read the CSV file.", error)
-    toast.error(preferences.t("Status_CsvPreviewFailed"))
-    resetPreview()
+    const loaded = await loadCsvFile(file)
+    if (!loaded.ok) {
+      toast.error(preferences.t(loadFailureKeys[loaded.reason]))
+      resetPreview()
+      return
+    }
+
+    parseResult.value = loaded.result
+    selectedName.value = loaded.fileName
   } finally {
     isReading.value = false
+  }
+}
+
+function onDialogDragOver(event: DragEvent): void {
+  event.preventDefault()
+  isDialogDragging.value = true
+}
+
+function onDialogDragLeave(): void {
+  isDialogDragging.value = false
+}
+
+async function onDialogDrop(event: DragEvent): Promise<void> {
+  event.preventDefault()
+  isDialogDragging.value = false
+  const file = event.dataTransfer?.files[0]
+  if (file) {
+    await applyFile(file)
   }
 }
 
@@ -95,12 +142,12 @@ function confirmImport(): void {
 
   session.replaceSubscriptions(toSubscriptions(result.rows), fileName)
   toast.success(preferences.t("Status_CsvImportCompleted", result.rows.length))
-  open.value = false
+  importOpen.value = false
 }
 </script>
 
 <template>
-  <Dialog v-model:open="open">
+  <Dialog v-model:open="importOpen">
     <DialogContent class="flex max-h-[90vh] max-w-[calc(100%-1.5rem)] flex-col overflow-hidden sm:max-w-2xl">
       <DialogHeader>
         <DialogTitle>{{ preferences.t("Settings_ImportDialogTitle") }}</DialogTitle>
@@ -110,21 +157,33 @@ function confirmImport(): void {
       </DialogHeader>
 
       <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <input
-            ref="fileInput"
-            type="file"
-            accept=".csv,text/csv"
-            class="sr-only"
-            @change="onFileChange"
-          >
-          <Button type="button" variant="outline" :disabled="isReading" @click="chooseFile">
-            {{ preferences.t("Import_ChooseFile") }}
-          </Button>
-          <p v-if="selectedName" class="text-muted-foreground truncate text-sm">
+        <input
+          ref="fileInput"
+          type="file"
+          accept=".csv,text/csv"
+          class="sr-only"
+          @change="onFileChange"
+        >
+        <button
+          type="button"
+          :disabled="isReading"
+          :class="cn(
+            'hover:bg-accent/40 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors',
+            isDialogDragging ? 'border-primary bg-accent/60' : 'border-muted-foreground/30',
+          )"
+          @click="chooseFile"
+          @dragover="onDialogDragOver"
+          @dragleave="onDialogDragLeave"
+          @drop="onDialogDrop"
+        >
+          <FileUp class="text-muted-foreground size-8" />
+          <span class="text-sm font-medium">
+            {{ isDialogDragging ? preferences.t("Import_DropActive") : preferences.t("Import_DropHint") }}
+          </span>
+          <span v-if="selectedName" class="text-muted-foreground max-w-full truncate text-xs">
             {{ selectedName }}
-          </p>
-        </div>
+          </span>
+        </button>
 
         <template v-if="preview">
           <p class="text-sm">
@@ -174,7 +233,7 @@ function confirmImport(): void {
       </div>
 
       <DialogFooter>
-        <Button type="button" variant="outline" @click="open = false">
+        <Button type="button" variant="outline" @click="importOpen = false">
           {{ preferences.t("Common_Cancel") }}
         </Button>
         <Button type="button" :disabled="!preview?.canImport" @click="confirmImport">

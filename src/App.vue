@@ -3,6 +3,8 @@ import { RouterView } from "vue-router"
 
 import AppHeader from "@/components/AppHeader.vue"
 import AppSidebar from "@/components/AppSidebar.vue"
+import CsvDropOverlay from "@/components/CsvDropOverlay.vue"
+import ImportCsvDialog from "@/components/ImportCsvDialog.vue"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { usePreferencesStore } from "@/stores/preferences"
@@ -19,6 +21,13 @@ const preferences = usePreferencesStore()
         <RouterView />
       </div>
     </SidebarInset>
-    <Toaster :theme="preferences.resolvedTheme" rich-colors />
   </SidebarProvider>
+  <ImportCsvDialog />
+  <CsvDropOverlay />
+  <Toaster
+    position="top-center"
+    :theme="preferences.resolvedTheme"
+    :rich-colors="true"
+    close-button
+  />
 </template>

@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { Trash2, Upload } from "@lucide/vue"
-import { computed, ref, watch } from "vue"
+import { computed, watch } from "vue"
 import { useRoute } from "vue-router"
 import { toast } from "vue-sonner"
 
-import ImportCsvDialog from "@/components/ImportCsvDialog.vue"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useCsvImport } from "@/composables/useCsvImport"
 import { usePreferencesStore } from "@/stores/preferences"
 import { useSessionStore } from "@/stores/session"
 
@@ -16,7 +16,7 @@ const preferences = usePreferencesStore()
 const session = useSessionStore()
 const route = useRoute()
 const { setOpenMobile } = useSidebar()
-const importOpen = ref(false)
+const { openImport } = useCsvImport()
 
 watch(() => route.fullPath, () => {
   setOpenMobile(false)
@@ -77,7 +77,7 @@ function clearSession(): void {
       >
         <Trash2 />
       </Button>
-      <Button size="sm" class="hidden sm:inline-flex" @click="importOpen = true">
+      <Button size="sm" class="hidden sm:inline-flex" @click="openImport()">
         <Upload />
         {{ preferences.t("Settings_ImportCsv") }}
       </Button>
@@ -85,11 +85,10 @@ function clearSession(): void {
         size="icon-sm"
         class="sm:hidden"
         :aria-label="preferences.t('Settings_ImportCsv')"
-        @click="importOpen = true"
+        @click="openImport()"
       >
         <Upload />
       </Button>
     </div>
-    <ImportCsvDialog v-model:open="importOpen" />
   </header>
 </template>
