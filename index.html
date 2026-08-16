@@ -4,7 +4,57 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>neko-subscription</title>
+    <title>NekoSubscription</title>
+    <script>
+      (function () {
+        var theme = "auto";
+        var locale = "auto";
+        try {
+          theme = localStorage.getItem("neko-subscription.theme") || "auto";
+          locale = localStorage.getItem("neko-subscription.locale") || "auto";
+        } catch (error) {}
+        var dark =
+          theme === "dark" ||
+          (theme !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", dark);
+        var languages =
+          navigator.languages && navigator.languages.length
+            ? navigator.languages
+            : [navigator.language];
+        var resolved = "en";
+        if (locale === "en" || locale === "zh-Hans" || locale === "zh-Hant" || locale === "ja") {
+          resolved = locale;
+        } else {
+          for (var i = 0; i < languages.length; i++) {
+            var value = String(languages[i] || "")
+              .toLowerCase()
+              .replace(/_/g, "-");
+            if (value === "ja" || value.indexOf("ja-") === 0) {
+              resolved = "ja";
+              break;
+            }
+            if (
+              value === "zh-hant" ||
+              value.slice(-3) === "-tw" ||
+              value.slice(-3) === "-hk" ||
+              value.slice(-3) === "-mo"
+            ) {
+              resolved = "zh-Hant";
+              break;
+            }
+            if (value === "zh" || value.indexOf("zh-") === 0) {
+              resolved = "zh-Hans";
+              break;
+            }
+            if (value === "en" || value.indexOf("en-") === 0) {
+              resolved = "en";
+              break;
+            }
+          }
+        }
+        document.documentElement.lang = resolved;
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

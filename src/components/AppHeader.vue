@@ -1,0 +1,95 @@
+<script setup lang="ts">
+import { Trash2, Upload } from "@lucide/vue"
+import { computed, ref, watch } from "vue"
+import { useRoute } from "vue-router"
+import { toast } from "vue-sonner"
+
+import ImportCsvDialog from "@/components/ImportCsvDialog.vue"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { usePreferencesStore } from "@/stores/preferences"
+import { useSessionStore } from "@/stores/session"
+
+const preferences = usePreferencesStore()
+const session = useSessionStore()
+const route = useRoute()
+const { setOpenMobile } = useSidebar()
+const importOpen = ref(false)
+
+watch(() => route.fullPath, () => {
+  setOpenMobile(false)
+})
+
+const pageTitle = computed(() => {
+  switch (route.name) {
+    case "subscriptions":
+      return preferences.t("Nav_Subscriptions")
+    case "calendar":
+      return preferences.t("Nav_Calendar")
+    case "settings":
+      return preferences.t("Nav_Settings")
+    default:
+      return preferences.t("Forecast_Title")
+  }
+})
+
+function clearSession(): void {
+  session.clear()
+  toast.success(preferences.t("Status_SessionCleared"))
+}
+</script>
+
+<template>
+  <header class="flex h-14 shrink-0 items-center gap-2 border-b px-3 md:px-4">
+    <SidebarTrigger class="-ml-1" />
+    <Separator orientation="vertical" class="h-4" />
+    <div class="flex min-w-0 flex-1 flex-col">
+      <h2 class="truncate text-sm font-medium">{{ pageTitle }}</h2>
+      <p v-if="session.sourceName" class="text-muted-foreground truncate text-xs">
+        {{ session.sourceName }}
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <Tooltip>
+        <TooltipTrigger as-child>
+          <Button
+            variant="outline"
+            size="sm"
+            class="hidden sm:inline-flex"
+            :disabled="!session.hasData"
+            @click="clearSession"
+          >
+            <Trash2 />
+            {{ preferences.t("Common_Clear") }}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{{ preferences.t("Settings_SessionDescription") }}</TooltipContent>
+      </Tooltip>
+      <Button
+        variant="outline"
+        size="icon-sm"
+        class="sm:hidden"
+        :disabled="!session.hasData"
+        :aria-label="preferences.t('Common_Clear')"
+        @click="clearSession"
+      >
+        <Trash2 />
+      </Button>
+      <Button size="sm" class="hidden sm:inline-flex" @click="importOpen = true">
+        <Upload />
+        {{ preferences.t("Settings_ImportCsv") }}
+      </Button>
+      <Button
+        size="icon-sm"
+        class="sm:hidden"
+        :aria-label="preferences.t('Settings_ImportCsv')"
+        @click="importOpen = true"
+      >
+        <Upload />
+      </Button>
+    </div>
+    <ImportCsvDialog v-model:open="importOpen" />
+  </header>
+</template>
