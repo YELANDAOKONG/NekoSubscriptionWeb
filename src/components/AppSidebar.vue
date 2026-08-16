@@ -23,7 +23,6 @@ import {
   SidebarMenuItem,
   SidebarRail,
   SidebarSeparator,
-  useSidebar,
 } from "@/components/ui/sidebar"
 import type { MessageKey } from "@/i18n/locales/en"
 import { usePreferencesStore } from "@/stores/preferences"
@@ -80,9 +79,6 @@ const footerItems: NavItem[] = [
 const preferences = usePreferencesStore()
 const session = useSessionStore()
 const route = useRoute()
-const { isMobile, state } = useSidebar()
-
-const showCopy = computed(() => isMobile.value || state.value !== "collapsed")
 const subscriptionCount = computed(() => session.subscriptions.length)
 
 function itemTooltip(item: NavItem): string {
@@ -170,12 +166,6 @@ function itemTooltip(item: NavItem): string {
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
-      <p
-        v-if="showCopy"
-        class="text-muted-foreground line-clamp-2 px-2 pb-1 text-xs leading-relaxed"
-      >
-        {{ session.sourceName ?? preferences.t("Brand_SessionOnly") }}
-      </p>
     </SidebarFooter>
     <SidebarRail />
   </Sidebar>
