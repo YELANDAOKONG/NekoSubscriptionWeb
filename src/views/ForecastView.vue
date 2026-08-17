@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useCsvImport } from "@/composables/useCsvImport"
 import type { CurrencyAmountTotal } from "@/domain/types"
-import { FORECAST_PERIODS, MAXIMUM_UPCOMING_PAYMENT_COUNT } from "@/domain/types"
+import { FORECAST_PERIODS } from "@/domain/types"
 import { formatIsoDate, formatMoney } from "@/i18n/format"
 import { usePreferencesStore } from "@/stores/preferences"
 import { useSessionStore } from "@/stores/session"
@@ -18,12 +18,7 @@ const preferences = usePreferencesStore()
 const session = useSessionStore()
 const { openImport } = useCsvImport()
 
-const upcoming = computed(() =>
-  session.forecast.items.slice(0, MAXIMUM_UPCOMING_PAYMENT_COUNT),
-)
-const hiddenUpcomingCount = computed(
-  () => session.forecast.items.length - upcoming.value.length,
-)
+const upcoming = computed(() => session.forecast.items)
 const nextPaymentLabel = computed(() => {
   const first = upcoming.value[0]
   if (!first) {
@@ -223,7 +218,7 @@ function formatTotal(total: CurrencyAmountTotal): string {
         <p v-if="upcoming.length === 0" class="text-muted-foreground text-sm">
           {{ preferences.t("Dashboard_EmptyUpcomingDescription") }}
         </p>
-        <ul v-else class="divide-y rounded-lg border">
+        <ul v-else class="max-h-[min(32rem,70vh)] divide-y overflow-y-auto rounded-lg border">
           <li
             v-for="item in upcoming"
             :key="`${item.subscriptionId}-${item.scheduledOn}`"
@@ -243,9 +238,6 @@ function formatTotal(total: CurrencyAmountTotal): string {
             </p>
           </li>
         </ul>
-        <p v-if="hiddenUpcomingCount > 0" class="text-muted-foreground text-sm">
-          {{ preferences.t("Dashboard_UpcomingMore", hiddenUpcomingCount) }}
-        </p>
       </section>
     </template>
   </div>

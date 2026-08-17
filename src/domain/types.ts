@@ -127,7 +127,6 @@ export const CSV_COLUMN_COUNT = 13
 export const CSV_MAXIMUM_FILE_SIZE = 10 * 1024 * 1024
 export const FORECAST_PERIODS = [3, 7, 14, 30, 90] as const
 export const DEFAULT_FORECAST_DAYS = 7
-export const MAXIMUM_UPCOMING_PAYMENT_COUNT = 6
 export const CALENDAR_DAY_COUNT = 42
 export const MISSING_CURRENCY_CODE = "XXX"
 export const MAXIMUM_CURRENCY_CODE_LENGTH = 10
