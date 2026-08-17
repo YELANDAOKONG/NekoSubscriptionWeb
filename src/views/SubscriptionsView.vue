@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
-import { Upload, X } from "@lucide/vue"
+import { Search, Upload, Wallet, X } from "@lucide/vue"
 
 import EmptyState from "@/components/EmptyState.vue"
 import LayoutToggle, { type ListLayout } from "@/components/LayoutToggle.vue"
@@ -139,9 +139,12 @@ function dateLabel(iso: string | null, emptyKey: "Common_Unknown" | "Common_NotS
 
     <EmptyState
       v-if="!session.hasData"
-      :title="preferences.t('Subscriptions_NoDataTitle')"
-      :description="preferences.t('Subscriptions_NoDataDescription')"
+      :title="preferences.t('Empty_SubscriptionsTitle')"
+      :description="preferences.t('Empty_SubscriptionsDescription')"
     >
+      <template #icon>
+        <Wallet />
+      </template>
       <Button @click="openImport()">
         <Upload />
         {{ preferences.t("Settings_ImportCsv") }}
@@ -203,6 +206,9 @@ function dateLabel(iso: string | null, emptyKey: "Common_Unknown" | "Common_NotS
         :title="preferences.t('Subscriptions_EmptyTitle')"
         :description="preferences.t('Subscriptions_EmptyDescription')"
       >
+        <template #icon>
+          <Search />
+        </template>
         <Button v-if="hasListConstraints" variant="outline" @click="clearListConstraints">
           {{ preferences.t("Subscriptions_ClearFilters") }}
         </Button>

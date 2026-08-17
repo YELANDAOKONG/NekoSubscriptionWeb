@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import { useResizeObserver } from "@vueuse/core"
 import { computed, ref } from "vue"
-import { AlertTriangle, Upload } from "@lucide/vue"
+import { AlertTriangle, LayoutDashboard, Upload } from "@lucide/vue"
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Item, ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import EmptyState from "@/components/EmptyState.vue"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useCsvImport } from "@/composables/useCsvImport"
 import type { CurrencyAmountTotal } from "@/domain/types"
 import { FORECAST_PERIODS, MAXIMUM_UPCOMING_PAYMENT_COUNT } from "@/domain/types"
@@ -98,9 +95,12 @@ function formatTotal(total: CurrencyAmountTotal): string {
 
     <EmptyState
       v-if="!session.hasData"
-      :title="preferences.t('Subscriptions_NoDataTitle')"
-      :description="preferences.t('Subscriptions_NoDataDescription')"
+      :title="preferences.t('Empty_ForecastTitle')"
+      :description="preferences.t('Empty_ForecastDescription')"
     >
+      <template #icon>
+        <LayoutDashboard />
+      </template>
       <Button @click="openImport()">
         <Upload />
         {{ preferences.t("Settings_ImportCsv") }}
@@ -108,37 +108,7 @@ function formatTotal(total: CurrencyAmountTotal): string {
     </EmptyState>
 
     <template v-else>
-      <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Card class="py-4">
-          <CardHeader class="px-4">
-            <CardDescription>{{ preferences.t("Dashboard_MetricActive") }}</CardDescription>
-            <CardTitle class="text-2xl">{{ session.activeSubscriptions.length }}</CardTitle>
-            <CardDescription>{{ preferences.t("Dashboard_MetricActiveCaption") }}</CardDescription>
-          </CardHeader>
-        </Card>
-        <Card class="py-4">
-          <CardHeader class="px-4">
-            <CardDescription>{{ preferences.t("Dashboard_MetricPayments") }}</CardDescription>
-            <CardTitle class="text-2xl">{{ session.forecast.items.length }}</CardTitle>
-            <CardDescription>{{ preferences.t("Dashboard_MetricPaymentsCaption") }}</CardDescription>
-          </CardHeader>
-        </Card>
-        <Card class="py-4">
-          <CardHeader class="px-4">
-            <CardDescription>{{ preferences.t("Dashboard_MetricInactive") }}</CardDescription>
-            <CardTitle class="text-2xl">{{ session.excludedCount }}</CardTitle>
-            <CardDescription>{{ preferences.t("Dashboard_MetricInactiveCaption") }}</CardDescription>
-          </CardHeader>
-        </Card>
-        <Card class="py-4">
-          <CardHeader class="px-4">
-            <CardDescription>{{ preferences.t("Dashboard_NextPayment") }}</CardDescription>
-            <CardTitle class="text-lg md:text-xl">{{ nextPaymentLabel }}</CardTitle>
-          </CardHeader>
-        </Card>
-      </div>
-
-      <div class="flex flex-col gap-3">
+      <div class="flex flex-col gap-4">
         <Tabs v-model="periodValue">
           <div
             ref="periodScroller"
@@ -157,125 +127,126 @@ function formatTotal(total: CurrencyAmountTotal): string {
             </TabsList>
           </div>
         </Tabs>
-        <p class="text-muted-foreground text-sm">
-          {{ preferences.t("Forecast_PeriodLabel", session.forecastDayCount) }}
-        </p>
-        <p v-if="session.excludedCount > 0" class="text-muted-foreground text-sm">
-          {{ preferences.t("Forecast_ExcludedSubscriptions", session.excludedCount) }}
-        </p>
+
+        <div>
+          <p class="text-muted-foreground text-sm">
+            {{ preferences.t("Forecast_PeriodLabel", session.forecastDayCount) }}
+          </p>
+          <div
+            v-if="session.forecast.currencyTotals.length > 0"
+            class="mt-2 flex flex-col gap-1"
+          >
+            <p
+              v-for="total in session.forecast.currencyTotals"
+              :key="`${total.currencyCode}-${total.currencyKind}`"
+              class="text-3xl font-semibold tracking-tight tabular-nums sm:text-4xl"
+            >
+              {{ formatTotal(total) }}
+            </p>
+          </div>
+          <p v-else class="text-muted-foreground mt-2 text-sm">
+            {{ preferences.t("Dashboard_EmptyCashTitle") }}
+          </p>
+          <p v-if="session.excludedCount > 0" class="text-muted-foreground mt-2 text-sm">
+            {{ preferences.t("Forecast_ExcludedSubscriptions", session.excludedCount) }}
+          </p>
+        </div>
       </div>
+
+      <dl class="grid grid-cols-2 gap-x-6 gap-y-3 border-y py-4 sm:grid-cols-4">
+        <div>
+          <dt class="text-muted-foreground text-xs">{{ preferences.t("Dashboard_MetricActive") }}</dt>
+          <dd class="mt-1 text-lg font-medium tabular-nums">{{ session.activeSubscriptions.length }}</dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground text-xs">{{ preferences.t("Dashboard_MetricPayments") }}</dt>
+          <dd class="mt-1 text-lg font-medium tabular-nums">{{ session.forecast.items.length }}</dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground text-xs">{{ preferences.t("Dashboard_MetricInactive") }}</dt>
+          <dd class="mt-1 text-lg font-medium tabular-nums">{{ session.excludedCount }}</dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground text-xs">{{ preferences.t("Dashboard_NextPayment") }}</dt>
+          <dd class="mt-1 text-lg font-medium">{{ nextPaymentLabel }}</dd>
+        </div>
+      </dl>
 
       <Alert v-if="session.overduePayments.length > 0">
         <AlertTriangle />
         <AlertTitle>{{ preferences.t("Forecast_OverdueTitle") }}</AlertTitle>
-        <AlertDescription>
-          {{ preferences.t("Forecast_OverdueDescription") }}
+        <AlertDescription class="flex flex-col gap-2">
+          <p>{{ preferences.t("Forecast_OverdueDescription") }}</p>
+          <p
+            v-if="session.overdueCurrencyTotals.length > 0"
+            class="text-foreground flex flex-wrap gap-x-4 gap-y-1 font-medium tabular-nums"
+          >
+            <span
+              v-for="total in session.overdueCurrencyTotals"
+              :key="`${total.currencyCode}-${total.currencyKind}`"
+            >
+              {{ formatTotal(total) }}
+            </span>
+          </p>
         </AlertDescription>
       </Alert>
 
-      <Card v-if="session.overdueCurrencyTotals.length > 0">
-        <CardHeader>
-          <CardTitle>{{ preferences.t("Forecast_OverdueFundsTitle") }}</CardTitle>
-          <CardDescription>{{ preferences.t("Forecast_OverdueFundsDescription") }}</CardDescription>
-        </CardHeader>
-        <CardContent class="flex flex-col gap-3">
-          <div
-            v-for="total in session.overdueCurrencyTotals"
-            :key="`${total.currencyCode}-${total.currencyKind}`"
-            class="flex items-start justify-between gap-3 rounded-lg border p-3"
-          >
-            <p class="font-medium">{{ total.currencyCode }}</p>
-            <p class="text-right font-semibold tabular-nums">{{ formatTotal(total) }}</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div v-if="session.overduePayments.length > 0" class="grid gap-2">
-        <Item
+      <ul v-if="session.overduePayments.length > 0" class="divide-y rounded-lg border">
+        <li
           v-for="item in session.overduePayments"
           :key="item.subscription.id"
-          variant="outline"
-          size="sm"
+          class="flex items-start justify-between gap-3 px-3 py-2.5"
         >
-          <ItemContent>
-            <ItemTitle>{{ item.subscription.serviceName }}</ItemTitle>
-            <ItemDescription>
+          <div class="min-w-0">
+            <p class="truncate font-medium">{{ item.subscription.serviceName }}</p>
+            <p class="text-muted-foreground text-sm">
               {{ item.subscription.providerName }}
-              ·
-              {{ formatIsoDate(item.dueOn, preferences.resolvedLocale) }}
-              ·
+            </p>
+            <p class="text-muted-foreground text-xs">
+              {{ formatIsoDate(item.dueOn, preferences.resolvedLocale) }},
               {{ preferences.t("Forecast_DaysOverdue", item.daysOverdue) }}
-            </ItemDescription>
-          </ItemContent>
-          <Badge variant="destructive" class="tabular-nums">
+            </p>
+          </div>
+          <p class="text-destructive shrink-0 font-medium tabular-nums">
             {{ formatMoney(item.subscription.billingAmount, preferences.resolvedLocale) }}
-          </Badge>
-        </Item>
-      </div>
+          </p>
+        </li>
+      </ul>
 
-      <div class="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>{{ preferences.t("Forecast_CashFlowTitle") }}</CardTitle>
-            <CardDescription>{{ preferences.t("Dashboard_CashFlowDescription") }}</CardDescription>
-          </CardHeader>
-          <CardContent class="flex flex-col gap-3">
-            <EmptyState
-              v-if="session.forecast.currencyTotals.length === 0"
-              class="border-0"
-              :title="preferences.t('Dashboard_EmptyCashTitle')"
-              :description="preferences.t('Dashboard_EmptyCashDescription')"
-            />
-            <div
-              v-for="total in session.forecast.currencyTotals"
-              :key="`${total.currencyCode}-${total.currencyKind}`"
-              class="flex items-start justify-between gap-3 rounded-lg border p-3"
-            >
-              <div>
-                <p class="font-medium">{{ total.currencyCode }}</p>
-                <p class="text-muted-foreground text-xs tabular-nums">
-                  {{ preferences.t("Column_Fixed") }}
-                  {{ formatMoney({ amount: total.fixedAmount, currencyCode: total.currencyCode, currencyKind: total.currencyKind }, preferences.resolvedLocale) }}
-                </p>
-              </div>
-              <p class="text-right font-semibold tabular-nums">
-                {{ formatMoney({ amount: total.totalAmount, currencyCode: total.currencyCode, currencyKind: total.currencyKind }, preferences.resolvedLocale) }}
+      <section class="flex flex-col gap-3">
+        <div>
+          <h2 class="text-lg font-semibold">{{ preferences.t("Dashboard_UpcomingTitle") }}</h2>
+          <p class="text-muted-foreground text-sm">
+            {{ preferences.t("Forecast_UpcomingDescription") }}
+          </p>
+        </div>
+        <p v-if="upcoming.length === 0" class="text-muted-foreground text-sm">
+          {{ preferences.t("Dashboard_EmptyUpcomingDescription") }}
+        </p>
+        <ul v-else class="divide-y rounded-lg border">
+          <li
+            v-for="item in upcoming"
+            :key="`${item.subscriptionId}-${item.scheduledOn}`"
+            class="flex items-start justify-between gap-3 px-3 py-2.5"
+          >
+            <div class="min-w-0">
+              <p class="truncate font-medium">{{ item.serviceName }}</p>
+              <p class="text-muted-foreground text-sm">
+                {{ item.providerName }}
+              </p>
+              <p class="text-muted-foreground text-xs">
+                {{ formatIsoDate(item.scheduledOn, preferences.resolvedLocale) }}
               </p>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>{{ preferences.t("Dashboard_UpcomingTitle") }}</CardTitle>
-            <CardDescription>{{ preferences.t("Forecast_UpcomingDescription") }}</CardDescription>
-          </CardHeader>
-          <CardContent class="flex flex-col gap-2">
-            <EmptyState
-              v-if="upcoming.length === 0"
-              class="border-0"
-              :title="preferences.t('Dashboard_EmptyUpcomingTitle')"
-              :description="preferences.t('Dashboard_EmptyUpcomingDescription')"
-            />
-            <Item v-for="item in upcoming" :key="`${item.subscriptionId}-${item.scheduledOn}`" variant="outline" size="sm">
-              <ItemContent>
-                <ItemTitle>{{ item.serviceName }}</ItemTitle>
-                <ItemDescription>
-                  {{ item.providerName }}
-                  ·
-                  {{ formatIsoDate(item.scheduledOn, preferences.resolvedLocale) }}
-                </ItemDescription>
-              </ItemContent>
-              <Badge variant="secondary" class="tabular-nums">
-                {{ formatMoney(item.amount, preferences.resolvedLocale) }}
-              </Badge>
-            </Item>
-            <p v-if="hiddenUpcomingCount > 0" class="text-muted-foreground text-sm">
-              {{ preferences.t("Dashboard_UpcomingMore", hiddenUpcomingCount) }}
+            <p class="shrink-0 font-medium tabular-nums">
+              {{ formatMoney(item.amount, preferences.resolvedLocale) }}
             </p>
-          </CardContent>
-        </Card>
-      </div>
+          </li>
+        </ul>
+        <p v-if="hiddenUpcomingCount > 0" class="text-muted-foreground text-sm">
+          {{ preferences.t("Dashboard_UpcomingMore", hiddenUpcomingCount) }}
+        </p>
+      </section>
     </template>
   </div>
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronLeft, ChevronRight, Upload } from "@lucide/vue"
+import { CalendarDays, ChevronLeft, ChevronRight, Upload } from "@lucide/vue"
 import { computed, nextTick, ref, watch } from "vue"
 
 import { Badge } from "@/components/ui/badge"
@@ -179,9 +179,12 @@ function onCalendarGridKeydown(event: KeyboardEvent): void {
 
     <EmptyState
       v-if="!session.hasData"
-      :title="preferences.t('Subscriptions_NoDataTitle')"
-      :description="preferences.t('Subscriptions_NoDataDescription')"
+      :title="preferences.t('Empty_CalendarTitle')"
+      :description="preferences.t('Empty_CalendarDescription')"
     >
+      <template #icon>
+        <CalendarDays />
+      </template>
       <Button @click="openImport()">
         <Upload />
         {{ preferences.t("Settings_ImportCsv") }}

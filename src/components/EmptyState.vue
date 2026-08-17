@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { FileUp } from "@lucide/vue"
-
 import {
   Empty,
   EmptyContent,
@@ -19,8 +17,8 @@ defineProps<{
 <template>
   <Empty class="border">
     <EmptyHeader>
-      <EmptyMedia variant="icon">
-        <FileUp />
+      <EmptyMedia v-if="$slots.icon" variant="icon">
+        <slot name="icon" />
       </EmptyMedia>
       <EmptyTitle>{{ title }}</EmptyTitle>
       <EmptyDescription>{{ description }}</EmptyDescription>

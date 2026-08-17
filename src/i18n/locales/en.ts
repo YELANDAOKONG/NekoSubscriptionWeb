@@ -75,8 +75,18 @@ export const en = {
   Layout_Table: "Table",
   Layout_Cards: "Cards",
   Layout_Toggle: "List layout",
-  Subscriptions_NoDataTitle: "No CSV imported",
-  Subscriptions_NoDataDescription: "Choose a 13-column NekoSubscription CSV. Refreshing the page clears the imported rows.",
+  Empty_ForecastTitle: "No forecast yet",
+  Empty_ForecastDescription:
+    "Import a CSV to see period totals, upcoming charges, and overdue dates for this file.",
+  Empty_CostTitle: "No monthly cost yet",
+  Empty_CostDescription:
+    "Import a CSV to see each active subscription as a monthly run-rate, grouped by original currency.",
+  Empty_CalendarTitle: "No calendar yet",
+  Empty_CalendarDescription:
+    "Import a CSV to place scheduled charges on the month grid. Select a day to see that day's list.",
+  Empty_SubscriptionsTitle: "No subscriptions yet",
+  Empty_SubscriptionsDescription:
+    "Import a 13-column CSV to search and inspect every row in this tab. Refreshing the page clears them.",
   Common_Cancel: "Cancel",
   Common_Unknown: "Unknown",
   Common_NotScheduled: "Not scheduled",

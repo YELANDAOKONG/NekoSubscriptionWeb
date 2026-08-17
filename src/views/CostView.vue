@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
-import { Upload } from "@lucide/vue"
+import { Coins, Upload } from "@lucide/vue"
 
 import EmptyState from "@/components/EmptyState.vue"
 import LayoutToggle, { type ListLayout } from "@/components/LayoutToggle.vue"
@@ -83,9 +83,12 @@ function formatMonthly(subscription: Subscription, amount: number): string {
 
     <EmptyState
       v-if="!session.hasData"
-      :title="preferences.t('Subscriptions_NoDataTitle')"
-      :description="preferences.t('Subscriptions_NoDataDescription')"
+      :title="preferences.t('Empty_CostTitle')"
+      :description="preferences.t('Empty_CostDescription')"
     >
+      <template #icon>
+        <Coins />
+      </template>
       <Button @click="openImport()">
         <Upload />
         {{ preferences.t("Settings_ImportCsv") }}
@@ -102,12 +105,12 @@ function formatMonthly(subscription: Subscription, amount: number): string {
           <CardTitle>{{ preferences.t("Cost_Title") }}</CardTitle>
         </CardHeader>
         <CardContent class="flex flex-col gap-3">
-          <EmptyState
+          <p
             v-if="session.monthlyCostTotals.length === 0"
-            class="border-0"
-            :title="preferences.t('Cost_EmptyTitle')"
-            :description="preferences.t('Cost_EmptyDescription')"
-          />
+            class="text-muted-foreground text-sm"
+          >
+            {{ preferences.t("Cost_EmptyDescription") }}
+          </p>
           <div
             v-for="total in session.monthlyCostTotals"
             :key="`${total.currencyCode}-${total.currencyKind}`"
@@ -128,12 +131,12 @@ function formatMonthly(subscription: Subscription, amount: number): string {
           </CardAction>
         </CardHeader>
         <CardContent>
-          <EmptyState
+          <p
             v-if="rows.length === 0"
-            class="border-0"
-            :title="preferences.t('Cost_EmptyTitle')"
-            :description="preferences.t('Cost_EmptyDescription')"
-          />
+            class="text-muted-foreground text-sm"
+          >
+            {{ preferences.t("Cost_EmptyDescription") }}
+          </p>
           <div v-else-if="layout === 'cards'" class="grid gap-3 md:grid-cols-2">
             <article
               v-for="row in rows"
