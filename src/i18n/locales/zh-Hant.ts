@@ -127,7 +127,6 @@ export const zhHant: Record<MessageKey, string> = {
   ImportIssue_InvalidPaymentChannel: "不支援此付款方式代碼",
   ImportIssue_MissingPaymentAccount: "此付款方式需要付款帳戶",
   ImportIssue_DuplicateRow: "可能是重複列，但仍會匯入",
-  Forecast_Title: "支出預估",
   Forecast_PeriodLabel: "未來 {0} 天的預計扣款，依原始幣別分別統計。",
   Forecast_DayOption: "{0} 天",
   Forecast_ExcludedSubscriptions: "有 {0} 項匯入訂閱因標記為停用而未計入預估。",

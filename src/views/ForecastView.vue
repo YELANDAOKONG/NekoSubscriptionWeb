@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useResizeObserver } from "@vueuse/core"
 import { computed, ref } from "vue"
+import { RouterLink } from "vue-router"
 import { AlertTriangle, LayoutDashboard, Upload } from "@lucide/vue"
 
 import EmptyState from "@/components/EmptyState.vue"
@@ -12,6 +13,7 @@ import { useCsvImport } from "@/composables/useCsvImport"
 import type { CurrencyAmountTotal } from "@/domain/types"
 import { FORECAST_PERIODS } from "@/domain/types"
 import { formatIsoDate, formatMoney } from "@/i18n/format"
+import { calendarLocation } from "@/navigation"
 import { usePreferencesStore } from "@/stores/preferences"
 import { useSessionStore } from "@/stores/session"
 
@@ -188,24 +190,25 @@ function formatTotal(total: CurrencyAmountTotal): string {
       </Alert>
 
       <ul v-if="session.overduePayments.length > 0" class="divide-y rounded-lg border">
-        <li
-          v-for="item in session.overduePayments"
-          :key="item.subscription.id"
-          class="flex items-start justify-between gap-3 px-3 py-2.5"
-        >
-          <div class="min-w-0">
-            <p class="truncate font-medium">{{ item.subscription.serviceName }}</p>
-            <p class="text-muted-foreground text-sm">
-              {{ item.subscription.providerName }}
+        <li v-for="item in session.overduePayments" :key="item.subscription.id">
+          <RouterLink
+            :to="calendarLocation(item.dueOn)"
+            class="hover:bg-muted/50 flex items-start justify-between gap-3 px-3 py-2.5"
+          >
+            <div class="min-w-0">
+              <p class="truncate font-medium">{{ item.subscription.serviceName }}</p>
+              <p class="text-muted-foreground text-sm">
+                {{ item.subscription.providerName }}
+              </p>
+              <p class="text-muted-foreground text-xs">
+                {{ formatIsoDate(item.dueOn, preferences.resolvedLocale) }},
+                {{ preferences.t("Forecast_DaysOverdue", item.daysOverdue) }}
+              </p>
+            </div>
+            <p class="text-destructive shrink-0 font-medium tabular-nums">
+              {{ formatMoney(item.subscription.billingAmount, preferences.resolvedLocale) }}
             </p>
-            <p class="text-muted-foreground text-xs">
-              {{ formatIsoDate(item.dueOn, preferences.resolvedLocale) }},
-              {{ preferences.t("Forecast_DaysOverdue", item.daysOverdue) }}
-            </p>
-          </div>
-          <p class="text-destructive shrink-0 font-medium tabular-nums">
-            {{ formatMoney(item.subscription.billingAmount, preferences.resolvedLocale) }}
-          </p>
+          </RouterLink>
         </li>
       </ul>
 
@@ -220,23 +223,24 @@ function formatTotal(total: CurrencyAmountTotal): string {
           {{ preferences.t("Dashboard_EmptyUpcomingDescription") }}
         </p>
         <ul v-else class="max-h-[min(32rem,70vh)] divide-y overflow-y-auto rounded-lg border">
-          <li
-            v-for="item in upcoming"
-            :key="`${item.subscriptionId}-${item.scheduledOn}`"
-            class="flex items-start justify-between gap-3 px-3 py-2.5"
-          >
-            <div class="min-w-0">
-              <p class="truncate font-medium">{{ item.serviceName }}</p>
-              <p class="text-muted-foreground text-sm">
-                {{ item.providerName }}
+          <li v-for="item in upcoming" :key="`${item.subscriptionId}-${item.scheduledOn}`">
+            <RouterLink
+              :to="calendarLocation(item.scheduledOn)"
+              class="hover:bg-muted/50 flex items-start justify-between gap-3 px-3 py-2.5"
+            >
+              <div class="min-w-0">
+                <p class="truncate font-medium">{{ item.serviceName }}</p>
+                <p class="text-muted-foreground text-sm">
+                  {{ item.providerName }}
+                </p>
+                <p class="text-muted-foreground text-xs">
+                  {{ formatIsoDate(item.scheduledOn, preferences.resolvedLocale) }}
+                </p>
+              </div>
+              <p class="shrink-0 font-medium tabular-nums">
+                {{ formatMoney(item.amount, preferences.resolvedLocale) }}
               </p>
-              <p class="text-muted-foreground text-xs">
-                {{ formatIsoDate(item.scheduledOn, preferences.resolvedLocale) }}
-              </p>
-            </div>
-            <p class="shrink-0 font-medium tabular-nums">
-              {{ formatMoney(item.amount, preferences.resolvedLocale) }}
-            </p>
+            </RouterLink>
           </li>
         </ul>
       </section>

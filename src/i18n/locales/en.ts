@@ -132,7 +132,6 @@ export const en = {
   ImportIssue_InvalidPaymentChannel: "payment channel code is not supported",
   ImportIssue_MissingPaymentAccount: "this payment channel requires a payment account",
   ImportIssue_DuplicateRow: "probable duplicate row; it will still be imported",
-  Forecast_Title: "Spending forecast",
   Forecast_PeriodLabel: "Projected payments for the next {0} days, grouped by original currency.",
   Forecast_DayOption: "{0} days",
   Forecast_ExcludedSubscriptions:

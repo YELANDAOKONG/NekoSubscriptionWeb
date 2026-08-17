@@ -16,6 +16,7 @@ import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useCsvExport } from "@/composables/useCsvExport"
 import { useCsvImport } from "@/composables/useCsvImport"
+import { pageTitleKey } from "@/navigation"
 import { usePreferencesStore } from "@/stores/preferences"
 import { useSessionStore } from "@/stores/session"
 
@@ -30,22 +31,7 @@ watch(() => route.fullPath, () => {
   setOpenMobile(false)
 })
 
-const pageTitle = computed(() => {
-  switch (route.name) {
-    case "cost":
-      return preferences.t("Nav_Cost")
-    case "subscriptions":
-      return preferences.t("Nav_Subscriptions")
-    case "calendar":
-      return preferences.t("Nav_Calendar")
-    case "settings":
-      return preferences.t("Nav_Settings")
-    case "about":
-      return preferences.t("Nav_About")
-    default:
-      return preferences.t("Forecast_Title")
-  }
-})
+const pageTitle = computed(() => preferences.t(pageTitleKey(route.name)))
 
 function clearSession(): void {
   session.clear()

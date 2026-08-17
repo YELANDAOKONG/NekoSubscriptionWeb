@@ -33,7 +33,6 @@ export const usePreferencesStore = defineStore("preferences", () => {
     resolvedLocale,
     (locale) => {
       document.documentElement.lang = htmlLang(locale)
-      document.title = translate(locale, "App_Name")
     },
     { immediate: true },
   )

@@ -127,7 +127,6 @@ export const ja: Record<MessageKey, string> = {
   ImportIssue_InvalidPaymentChannel: "この支払い方法コードは未対応です",
   ImportIssue_MissingPaymentAccount: "この支払い方法には支払い口座が必要です",
   ImportIssue_DuplicateRow: "重複行の可能性がありますが、読み込みは続行します",
-  Forecast_Title: "支出予測",
   Forecast_PeriodLabel: "今後 {0} 日間の予定支払いを、元の通貨ごとに集計します。",
   Forecast_DayOption: "{0} 日",
   Forecast_ExcludedSubscriptions: "停止中のため、読み込んだサブスクリプション {0} 件は予測に含まれていません。",

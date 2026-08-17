@@ -4,7 +4,7 @@ import { Search, Upload, Wallet, X } from "@lucide/vue"
 
 import EmptyState from "@/components/EmptyState.vue"
 import SampleCsvButton from "@/components/SampleCsvButton.vue"
-import LayoutToggle, { type ListLayout } from "@/components/LayoutToggle.vue"
+import LayoutToggle from "@/components/LayoutToggle.vue"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useCsvImport } from "@/composables/useCsvImport"
+import { useListLayout } from "@/composables/useListLayout"
 import { monthlyEquivalentAmount } from "@/cashflow/cost"
 import { cycleLabel, formatIsoDate, formatMoney, paymentChannelLabel } from "@/i18n/format"
 import { usePreferencesStore } from "@/stores/preferences"
@@ -52,7 +53,7 @@ const { openImport } = useCsvImport()
 const query = ref("")
 const sort = ref(DEFAULT_SUBSCRIPTION_SORT)
 const statusFilter = ref<StatusFilter>("all")
-const layout = ref<ListLayout>("table")
+const { layout } = useListLayout()
 
 const hasListConstraints = computed(
   () => query.value.trim() !== "" || statusFilter.value !== "all",

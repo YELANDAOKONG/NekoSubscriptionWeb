@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { CalendarDays, ChevronLeft, ChevronRight, Upload } from "@lucide/vue"
 import { useEventListener } from "@vueuse/core"
-import { computed, nextTick, ref } from "vue"
+import { computed, nextTick, ref, watch } from "vue"
+import { useRoute, useRouter } from "vue-router"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -15,6 +16,7 @@ import {
   addDays,
   addMonths,
   daysPerWeek,
+  parseSupportedDate,
   startOfMonth,
   weekdayMondayFirst,
 } from "@/domain/dates"
@@ -43,6 +45,8 @@ type CalendarDay = {
 
 const preferences = usePreferencesStore()
 const session = useSessionStore()
+const route = useRoute()
+const router = useRouter()
 const { openImport } = useCsvImport()
 const today = useToday()
 const displayedMonth = ref(startOfMonth(today.value))
@@ -232,6 +236,26 @@ function onCalendarKeydown(event: KeyboardEvent): void {
 }
 
 useEventListener(window, "keydown", onCalendarKeydown)
+
+watch(
+  () => route.query.date,
+  (value) => {
+    if (typeof value !== "string") {
+      return
+    }
+
+    const date = parseSupportedDate(value)
+    if (date === null) {
+      return
+    }
+
+    selectDate(date, { scrollToDetail: true })
+    const nextQuery = { ...route.query }
+    delete nextQuery.date
+    void router.replace({ query: nextQuery })
+  },
+  { immediate: true },
+)
 </script>
 
 <template>

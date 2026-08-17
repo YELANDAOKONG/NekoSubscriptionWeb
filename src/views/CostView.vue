@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed } from "vue"
 import { Coins, Upload } from "@lucide/vue"
+import { RouterLink, useRouter } from "vue-router"
 
 import EmptyState from "@/components/EmptyState.vue"
 import SampleCsvButton from "@/components/SampleCsvButton.vue"
-import LayoutToggle, { type ListLayout } from "@/components/LayoutToggle.vue"
+import LayoutToggle from "@/components/LayoutToggle.vue"
 import { Button } from "@/components/ui/button"
 import {
   Table,
@@ -15,21 +16,25 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useCsvImport } from "@/composables/useCsvImport"
+import { useListLayout } from "@/composables/useListLayout"
 import { monthlyEquivalentAmount } from "@/cashflow/cost"
 import type { CurrencyAmountTotal, Subscription } from "@/domain/types"
 import { cycleLabel, formatMoney } from "@/i18n/format"
+import { calendarLocation } from "@/navigation"
 import { usePreferencesStore } from "@/stores/preferences"
 import { useSessionStore } from "@/stores/session"
 
 type CostRow = {
   subscription: Subscription
   monthlyAmount: number
+  calendarOn: string | null
 }
 
 const preferences = usePreferencesStore()
 const session = useSessionStore()
+const router = useRouter()
 const { openImport } = useCsvImport()
-const layout = ref<ListLayout>("table")
+const { layout } = useListLayout()
 
 const rows = computed<CostRow[]>(() => {
   return session.subscriptions
@@ -37,6 +42,7 @@ const rows = computed<CostRow[]>(() => {
     .map((subscription) => ({
       subscription,
       monthlyAmount: monthlyEquivalentAmount(subscription),
+      calendarOn: subscription.nextBillingOn ?? subscription.startsOn,
     }))
     .sort((left, right) => {
       const currencyOrder = left.subscription.billingAmount.currencyCode.localeCompare(
@@ -69,6 +75,14 @@ function formatMonthly(subscription: Subscription, amount: number): string {
     },
     preferences.resolvedLocale,
   )
+}
+
+function openCalendar(date: string | null): void {
+  if (date === null) {
+    return
+  }
+
+  void router.push(calendarLocation(date))
 }
 </script>
 
@@ -135,10 +149,15 @@ function formatMonthly(subscription: Subscription, amount: number): string {
           {{ preferences.t("Cost_EmptyDescription") }}
         </p>
         <div v-else-if="layout === 'cards'" class="grid gap-3 md:grid-cols-2">
-          <article
+          <component
+            :is="row.calendarOn ? RouterLink : 'article'"
             v-for="row in rows"
             :key="row.subscription.id"
-            class="flex flex-col gap-2 rounded-lg border p-3"
+            v-bind="row.calendarOn ? { to: calendarLocation(row.calendarOn) } : {}"
+            :class="[
+              'flex flex-col gap-2 rounded-lg border p-3',
+              row.calendarOn ? 'hover:bg-muted/40' : undefined,
+            ]"
           >
             <div class="min-w-0">
               <p class="font-medium">{{ row.subscription.serviceName }}</p>
@@ -164,7 +183,7 @@ function formatMonthly(subscription: Subscription, amount: number): string {
                 {{ formatMonthly(row.subscription, row.monthlyAmount) }}
               </dd>
             </dl>
-          </article>
+          </component>
         </div>
         <div v-else class="rounded-md border">
           <Table>
@@ -178,7 +197,16 @@ function formatMonthly(subscription: Subscription, amount: number): string {
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow v-for="row in rows" :key="row.subscription.id" class="group">
+              <TableRow
+                v-for="row in rows"
+                :key="row.subscription.id"
+                class="group"
+                :class="row.calendarOn ? 'cursor-pointer' : undefined"
+                :tabindex="row.calendarOn ? 0 : undefined"
+                @click="openCalendar(row.calendarOn)"
+                @keydown.enter.prevent="openCalendar(row.calendarOn)"
+                @keydown.space.prevent="openCalendar(row.calendarOn)"
+              >
                 <TableCell class="sticky left-0 z-10 bg-background font-medium group-hover:bg-muted/50">
                   {{ row.subscription.providerName }}
                 </TableCell>
