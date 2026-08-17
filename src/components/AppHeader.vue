@@ -96,18 +96,41 @@ function clearSession(): void {
               <Button
                 variant="outline"
                 size="sm"
-                class="max-sm:size-8 max-sm:px-0"
+                class="hidden sm:inline-flex"
                 :disabled="!session.hasData"
                 :aria-label="preferences.t('Settings_ExportCsv')"
               >
                 <Download />
-                <span class="hidden sm:inline">{{ preferences.t("Settings_ExportCsv") }}</span>
-                <ChevronDown class="hidden sm:block" />
+                {{ preferences.t("Settings_ExportCsv") }}
+                <ChevronDown />
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
           <TooltipContent>{{ preferences.t("Settings_ExportCsvToolTip") }}</TooltipContent>
         </Tooltip>
+        <DropdownMenuContent align="end" class="z-[100]">
+          <DropdownMenuItem @select="exportCsv(false)">
+            <Download />
+            {{ preferences.t("Settings_ExportCsv") }}
+          </DropdownMenuItem>
+          <DropdownMenuItem @select="exportCsv(true)">
+            <EyeOff />
+            {{ preferences.t("Settings_ExportCsvFuzzy") }}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <DropdownMenu>
+        <DropdownMenuTrigger as-child>
+          <Button
+            variant="outline"
+            size="icon-sm"
+            class="sm:hidden"
+            :disabled="!session.hasData"
+            :aria-label="preferences.t('Settings_ExportCsv')"
+          >
+            <Download />
+          </Button>
+        </DropdownMenuTrigger>
         <DropdownMenuContent align="end" class="z-[100]">
           <DropdownMenuItem @select="exportCsv(false)">
             <Download />
