@@ -1,82 +1,199 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+  System fonts first. Bundled Noto (shipped with the app, served from the site CDN)
+  is a named fallback: local() wins, url() is fetched only when those faces are missing.
+  Keep Noto before generic sans-serif/monospace, or the generic family would mask it.
+*/
+@font-face {
+  font-family: "Noto Sans Fallback";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src:
+    local("Noto Sans"),
+    local("NotoSans"),
+    url("./assets/fonts/NotoSans-VariableFont_wdth,wght.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Noto Sans Fallback";
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src:
+    local("Noto Sans Italic"),
+    local("NotoSans-Italic"),
+    url("./assets/fonts/NotoSans-Italic-VariableFont_wdth,wght.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Noto Sans SC Fallback";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  unicode-range: U+2E80-2EFF, U+2F00-2FDF, U+3000-303F, U+31C0-31EF, U+3400-4DBF, U+4E00-9FFF,
+    U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF, U+20000-2A6DF;
+  src:
+    local("PingFang SC"),
+    local("Hiragino Sans GB"),
+    local("Microsoft YaHei UI"),
+    local("Microsoft YaHei"),
+    local("Noto Sans SC"),
+    local("Noto Sans CJK SC"),
+    local("Source Han Sans SC"),
+    local("WenQuanYi Micro Hei"),
+    url("./assets/fonts/NotoSansSC-VariableFont_wght.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Noto Sans TC Fallback";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  unicode-range: U+2E80-2EFF, U+2F00-2FDF, U+3000-303F, U+31C0-31EF, U+3400-4DBF, U+4E00-9FFF,
+    U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF, U+20000-2A6DF;
+  src:
+    local("PingFang TC"),
+    local("PingFang HK"),
+    local("Hiragino Sans CNS"),
+    local("Microsoft JhengHei UI"),
+    local("Microsoft JhengHei"),
+    local("Noto Sans TC"),
+    local("Noto Sans HK"),
+    local("Noto Sans CJK TC"),
+    local("Source Han Sans TC"),
+    url("./assets/fonts/NotoSansTC-VariableFont_wght.ttf") format("truetype"),
+    url("./assets/fonts/NotoSansHK-VariableFont_wght.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Noto Sans JP Fallback";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  unicode-range: U+2E80-2EFF, U+2F00-2FDF, U+3000-303F, U+3040-30FF, U+31C0-31FF, U+3400-4DBF,
+    U+4E00-9FFF, U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF, U+20000-2A6DF;
+  src:
+    local("Hiragino Sans"),
+    local("Hiragino Kaku Gothic ProN"),
+    local("Yu Gothic UI"),
+    local("Yu Gothic"),
+    local("Meiryo"),
+    local("Noto Sans JP"),
+    local("Noto Sans CJK JP"),
+    local("Source Han Sans"),
+    url("./assets/fonts/NotoSansJP-VariableFont_wght.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Noto Sans Mono Fallback";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src:
+    local("Noto Sans Mono"),
+    local("NotoSansMono"),
+    url("./assets/fonts/NotoSansMono-VariableFont_wdth,wght.ttf") format("truetype");
+}
+
 :root {
+  --font-sans-stack: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Helvetica, Arial, "Noto Sans Fallback", "Noto Sans SC Fallback",
+    sans-serif;
+  --font-mono-stack: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Noto Sans Mono Fallback", monospace;
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --background: #f4f7f8;
+  --foreground: #1c2426;
+  --card: #f8fafb;
+  --card-foreground: #1c2426;
+  --popover: #f8fafb;
+  --popover-foreground: #1c2426;
+  --primary: #2a6570;
+  --primary-foreground: #f7fbfc;
+  --secondary: #e8eef0;
+  --secondary-foreground: #1c2426;
+  --muted: #e8eef0;
+  --muted-foreground: #5a686c;
+  --accent: #e8eef0;
+  --accent-foreground: #1c2426;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --border: #d5dee1;
+  --input: #d5dee1;
+  --ring: #2a6570;
+  --chart-1: #2a6570;
+  --chart-2: #4d8a94;
+  --chart-3: #7eb8c2;
+  --chart-4: #a3cdd3;
+  --chart-5: #c5e0e4;
+  --sidebar: #eef3f4;
+  --sidebar-foreground: #1c2426;
+  --sidebar-primary: #2a6570;
+  --sidebar-primary-foreground: #f7fbfc;
+  --sidebar-accent: #e0e8ea;
+  --sidebar-accent-foreground: #1c2426;
+  --sidebar-border: #d5dee1;
+  --sidebar-ring: #2a6570;
+}
+
+html[lang="zh-Hans"] {
+  --font-sans-stack: ui-sans-serif, system-ui, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI",
+    "Microsoft YaHei", "Noto Sans SC", "Noto Sans Fallback", "Noto Sans SC Fallback", sans-serif;
+}
+
+html[lang="zh-Hant"] {
+  --font-sans-stack: ui-sans-serif, system-ui, "PingFang TC", "PingFang HK", "Hiragino Sans CNS",
+    "Microsoft JhengHei UI", "Microsoft JhengHei", "Noto Sans TC", "Noto Sans HK",
+    "Noto Sans Fallback", "Noto Sans TC Fallback", sans-serif;
+}
+
+html[lang="ja"] {
+  --font-sans-stack: ui-sans-serif, system-ui, "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+    "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans JP", "Noto Sans Fallback",
+    "Noto Sans JP Fallback", sans-serif;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: #151a1c;
+  --foreground: #ecf2f3;
+  --card: #1c2326;
+  --card-foreground: #ecf2f3;
+  --popover: #1c2326;
+  --popover-foreground: #ecf2f3;
+  --primary: #7eb8c2;
+  --primary-foreground: #1a2426;
+  --secondary: #252d30;
+  --secondary-foreground: #ecf2f3;
+  --muted: #252d30;
+  --muted-foreground: #9caaad;
+  --accent: #252d30;
+  --accent-foreground: #ecf2f3;
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --input: oklch(1 0 0 / 14%);
+  --ring: #7eb8c2;
+  --chart-1: #7eb8c2;
+  --chart-2: #4d8a94;
+  --chart-3: #a3cdd3;
+  --chart-4: #2a6570;
+  --chart-5: #c5e0e4;
+  --sidebar: #1a2124;
+  --sidebar-foreground: #ecf2f3;
+  --sidebar-primary: #7eb8c2;
+  --sidebar-primary-foreground: #1a2426;
+  --sidebar-accent: #252d30;
+  --sidebar-accent-foreground: #ecf2f3;
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: #7eb8c2;
 }
 
 @theme inline {
-  --font-sans: Inter, system-ui, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB",
-    "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans CJK TC", "Noto Sans JP", sans-serif;
+  --font-sans: var(--font-sans-stack);
+  --font-mono: var(--font-mono-stack);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
