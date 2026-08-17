@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { CalendarDays, ChevronLeft, ChevronRight, Upload } from "@lucide/vue"
-import { computed, nextTick, ref, watch } from "vue"
+import { useEventListener } from "@vueuse/core"
+import { computed, nextTick, ref } from "vue"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -37,7 +38,6 @@ type CalendarDay = {
   date: string
   inMonth: boolean
   isToday: boolean
-  isSelected: boolean
   payments: CashFlowItem[]
 }
 
@@ -50,12 +50,6 @@ const selectedDate = ref(today.value)
 const calendarGrid = ref<HTMLElement | null>(null)
 const selectedDayDetail = ref<HTMLElement | null>(null)
 const weekLength = daysPerWeek()
-
-watch(displayedMonth, (month) => {
-  if (!selectedDate.value.startsWith(month.slice(0, 7))) {
-    selectedDate.value = month
-  }
-})
 
 const days = computed<CalendarDay[]>(() => {
   const monthStart = displayedMonth.value
@@ -76,7 +70,6 @@ const days = computed<CalendarDay[]>(() => {
       date,
       inMonth: date.startsWith(monthStart.slice(0, 7)),
       isToday: date === today.value,
-      isSelected: date === selectedDate.value,
       payments: paymentsByDate.get(date) ?? [],
     }
   })
@@ -95,16 +88,15 @@ const selectedDay = computed(() =>
 )
 
 function goToPreviousMonth(): void {
-  displayedMonth.value = addMonths(displayedMonth.value, -1)
+  selectDate(addMonths(selectedDate.value, -1))
 }
 
 function goToNextMonth(): void {
-  displayedMonth.value = addMonths(displayedMonth.value, 1)
+  selectDate(addMonths(selectedDate.value, 1))
 }
 
 function goToToday(): void {
-  displayedMonth.value = startOfMonth(today.value)
-  selectedDate.value = today.value
+  selectDate(today.value)
 }
 
 function selectDate(date: string, options?: { scrollToDetail?: boolean }): void {
@@ -134,55 +126,112 @@ function focusSelectedDay(): void {
     ?.focus()
 }
 
-function moveSelectedDay(dayOffset: number): void {
-  selectDate(addDays(selectedDate.value, dayOffset))
-  void nextTick(focusSelectedDay)
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false
+  }
+
+  return (
+    target.isContentEditable
+    || target.closest("input, textarea, select, [contenteditable=true]") !== null
+  )
 }
 
-function onCalendarGridKeydown(event: KeyboardEvent): void {
+function isOverlayTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false
+  }
+
+  return (
+    target.closest('[role="dialog"], [role="menu"], [data-slot="dropdown-menu-content"]')
+    !== null
+  )
+}
+
+function shouldHandleCalendarKeys(event: KeyboardEvent): boolean {
+  if (!session.hasData || event.defaultPrevented) {
+    return false
+  }
+
   if (event.altKey || event.ctrlKey || event.metaKey) {
+    return false
+  }
+
+  const target = event.target
+  if (isEditableTarget(target) || isOverlayTarget(target)) {
+    return false
+  }
+
+  if (target instanceof HTMLElement && target.closest('[data-slot="sidebar"]')) {
+    return false
+  }
+
+  return true
+}
+
+function moveSelectedDay(dayOffset: number, restoreGridFocus: boolean): void {
+  selectDate(addDays(selectedDate.value, dayOffset))
+  if (restoreGridFocus) {
+    void nextTick(focusSelectedDay)
+  }
+}
+
+function onCalendarKeydown(event: KeyboardEvent): void {
+  if (!shouldHandleCalendarKeys(event)) {
     return
   }
+
+  const target = event.target
+  const restoreGridFocus =
+    target === document.body
+    || target === document.documentElement
+    || (target instanceof Node && (calendarGrid.value?.contains(target) ?? false))
 
   switch (event.key) {
     case "ArrowLeft":
       event.preventDefault()
-      moveSelectedDay(-1)
+      moveSelectedDay(-1, restoreGridFocus)
       break
     case "ArrowRight":
       event.preventDefault()
-      moveSelectedDay(1)
+      moveSelectedDay(1, restoreGridFocus)
       break
     case "ArrowUp":
       event.preventDefault()
-      moveSelectedDay(-weekLength)
+      moveSelectedDay(-weekLength, restoreGridFocus)
       break
     case "ArrowDown":
       event.preventDefault()
-      moveSelectedDay(weekLength)
+      moveSelectedDay(weekLength, restoreGridFocus)
       break
     case "Home":
       event.preventDefault()
-      moveSelectedDay(-weekdayMondayFirst(selectedDate.value))
+      moveSelectedDay(-weekdayMondayFirst(selectedDate.value), restoreGridFocus)
       break
     case "End":
       event.preventDefault()
-      moveSelectedDay(weekLength - 1 - weekdayMondayFirst(selectedDate.value))
+      moveSelectedDay(weekLength - 1 - weekdayMondayFirst(selectedDate.value), restoreGridFocus)
       break
     case "PageUp":
       event.preventDefault()
       selectDate(addMonths(selectedDate.value, -1))
-      void nextTick(focusSelectedDay)
+      if (restoreGridFocus) {
+        void nextTick(focusSelectedDay)
+      }
       break
     case "PageDown":
       event.preventDefault()
       selectDate(addMonths(selectedDate.value, 1))
-      void nextTick(focusSelectedDay)
+      if (restoreGridFocus) {
+        void nextTick(focusSelectedDay)
+      }
       break
     default:
       break
   }
 }
+
+useEventListener(window, "keydown", onCalendarKeydown)
 </script>
 
 <template>
@@ -231,7 +280,6 @@ function onCalendarGridKeydown(event: KeyboardEvent): void {
             ref="calendarGrid"
             role="grid"
             :aria-label="preferences.t('Calendar_GridLabel')"
-            @keydown="onCalendarGridKeydown"
           >
             <div role="row" class="grid grid-cols-7 gap-1 text-center text-xs font-medium sm:text-sm">
               <div
@@ -256,16 +304,16 @@ function onCalendarGridKeydown(event: KeyboardEvent): void {
                   type="button"
                   role="gridcell"
                   :data-calendar-day="day.date"
-                  :tabindex="day.isSelected ? 0 : -1"
-                  :aria-pressed="day.isSelected"
-                  :aria-selected="day.isSelected"
+                  :tabindex="day.date === selectedDate ? 0 : -1"
+                  :aria-pressed="day.date === selectedDate"
+                  :aria-selected="day.date === selectedDate"
                   :aria-current="day.isToday ? 'date' : undefined"
                   :aria-label="formatIsoDate(day.date, preferences.resolvedLocale)"
                   :class="cn(
-                    'hover:bg-accent flex min-h-14 flex-col items-start rounded-md border p-1 text-left transition-transform duration-100 ease-out active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100 sm:min-h-24 sm:p-2',
+                    'hover:bg-accent flex min-h-14 flex-col items-start rounded-md border p-1 text-left sm:min-h-24 sm:p-2',
                     day.inMonth ? 'bg-background' : 'bg-muted/40 text-muted-foreground',
-                    day.isSelected && 'border-primary ring-ring ring-1',
-                    day.isToday && !day.isSelected && 'border-primary/40',
+                    day.date === selectedDate && 'border-primary ring-ring ring-1',
+                    day.isToday && day.date !== selectedDate && 'border-primary/40',
                   )"
                   @click="selectDate(day.date, { scrollToDetail: true })"
                 >
