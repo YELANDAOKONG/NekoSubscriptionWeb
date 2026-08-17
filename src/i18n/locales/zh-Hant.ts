@@ -198,6 +198,10 @@ export const zhHant: Record<MessageKey, string> = {
   About_CsvTitle: "13 欄 CSV 格式",
   About_CsvDescription:
     "欄位依欄位位置配對，表頭文字可以是英文、中文或任意內容。請使用逗號分隔的 UTF-8 檔案，大小不超過 10 MB。",
+  About_CsvGroupIdentity: "服務商、服務與帳戶",
+  About_CsvGroupBilling: "金額與週期",
+  About_CsvGroupDates: "日期",
+  About_CsvGroupPayment: "狀態、支付與備註",
   About_CsvIndex: "#",
   About_CsvHeader: "表頭（常見）",
   About_CsvMeaning: "含義",

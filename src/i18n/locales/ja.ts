@@ -198,6 +198,10 @@ export const ja: Record<MessageKey, string> = {
   About_CsvTitle: "13 列 CSV 形式",
   About_CsvDescription:
     "列は位置で対応付けます。見出し文字は英語、中国語、その他でも構いません。カンマ区切りの UTF-8 ファイルを使い、サイズは 10 MB 以下です。",
+  About_CsvGroupIdentity: "提供者、サービス、アカウント",
+  About_CsvGroupBilling: "金額と周期",
+  About_CsvGroupDates: "日付",
+  About_CsvGroupPayment: "状態、支払い、メモ",
   About_CsvIndex: "#",
   About_CsvHeader: "見出し（一般的）",
   About_CsvMeaning: "意味",

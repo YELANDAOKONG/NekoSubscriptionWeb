@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Label } from "@/components/ui/label"
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
 import {
   Select,
   SelectContent,
@@ -7,7 +7,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   LOCALE_PREFERENCES,
   THEME_PREFERENCES,
@@ -54,58 +53,40 @@ function onThemeChange(value: unknown): void {
       </p>
     </div>
 
-    <div class="grid gap-4 lg:grid-cols-2">
-      <Card>
-        <CardHeader>
-          <CardTitle>{{ preferences.t("Settings_LanguageTitle") }}</CardTitle>
-          <CardDescription>{{ preferences.t("Settings_LanguageDescription") }}</CardDescription>
-        </CardHeader>
-        <CardContent class="flex flex-col gap-3">
-          <Label for="language-select">{{ preferences.t("Settings_LanguageTitle") }}</Label>
-          <Select :model-value="preferences.localePreference" @update:model-value="onLocaleChange">
-            <SelectTrigger id="language-select" class="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem v-for="option in LOCALE_PREFERENCES" :key="option" :value="option">
-                {{ preferences.t(localeLabels[option]) }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
+    <FieldGroup class="max-w-xl">
+      <Field>
+        <FieldLabel for="language-select">{{ preferences.t("Settings_LanguageTitle") }}</FieldLabel>
+        <FieldDescription>{{ preferences.t("Settings_LanguageDescription") }}</FieldDescription>
+        <Select :model-value="preferences.localePreference" @update:model-value="onLocaleChange">
+          <SelectTrigger id="language-select" class="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem v-for="option in LOCALE_PREFERENCES" :key="option" :value="option">
+              {{ preferences.t(localeLabels[option]) }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </Field>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{{ preferences.t("Settings_ColorThemeTitle") }}</CardTitle>
-          <CardDescription>{{ preferences.t("Settings_ColorThemeDescription") }}</CardDescription>
-        </CardHeader>
-        <CardContent class="flex flex-col gap-3">
-          <Label for="theme-select">{{ preferences.t("Settings_ColorThemeTitle") }}</Label>
-          <Select :model-value="preferences.themePreference" @update:model-value="onThemeChange">
-            <SelectTrigger id="theme-select" class="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem v-for="option in THEME_PREFERENCES" :key="option" :value="option">
-                {{ preferences.t(themeLabels[option]) }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
+      <Field>
+        <FieldLabel for="theme-select">{{ preferences.t("Settings_ColorThemeTitle") }}</FieldLabel>
+        <FieldDescription>{{ preferences.t("Settings_ColorThemeDescription") }}</FieldDescription>
+        <Select :model-value="preferences.themePreference" @update:model-value="onThemeChange">
+          <SelectTrigger id="theme-select" class="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem v-for="option in THEME_PREFERENCES" :key="option" :value="option">
+              {{ preferences.t(themeLabels[option]) }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </Field>
 
-      <Card class="lg:col-span-2">
-        <CardHeader>
-          <CardTitle>{{ preferences.t("Settings_SessionTitle") }}</CardTitle>
-          <CardDescription>{{ preferences.t("Settings_SessionDescription") }}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p class="text-muted-foreground text-sm">
-            {{ preferences.t("Settings_PreferencesHint") }}
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+      <p class="text-muted-foreground border-t pt-6 text-sm leading-relaxed">
+        {{ preferences.t("Settings_SessionDescription") }}
+      </p>
+    </FieldGroup>
   </div>
 </template>

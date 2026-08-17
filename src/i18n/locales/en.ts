@@ -207,6 +207,10 @@ export const en = {
   About_CsvTitle: "13-column CSV format",
   About_CsvDescription:
     "Columns are matched by position. Header text can be English, Chinese, or anything else. Use a comma-separated UTF-8 file of at most 10 MB.",
+  About_CsvGroupIdentity: "Provider, service, and account",
+  About_CsvGroupBilling: "Amount and cycle",
+  About_CsvGroupDates: "Dates",
+  About_CsvGroupPayment: "Status, payment, and notes",
   About_CsvIndex: "#",
   About_CsvHeader: "Header (typical)",
   About_CsvMeaning: "Meaning",

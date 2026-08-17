@@ -198,6 +198,10 @@ export const zhHans: Record<MessageKey, string> = {
   About_CsvTitle: "13 列 CSV 格式",
   About_CsvDescription:
     "字段按列位置匹配，表头文字可以是英文、中文或任意内容。请使用逗号分隔的 UTF-8 文件，大小不超过 10 MB。",
+  About_CsvGroupIdentity: "服务商、服务与账户",
+  About_CsvGroupBilling: "金额与周期",
+  About_CsvGroupDates: "日期",
+  About_CsvGroupPayment: "状态、支付与备注",
   About_CsvIndex: "#",
   About_CsvHeader: "表头（常见）",
   About_CsvMeaning: "含义",
