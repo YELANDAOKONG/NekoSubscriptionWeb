@@ -131,12 +131,9 @@ function dateLabel(iso: string | null, emptyKey: "Common_Unknown" | "Common_NotS
 
 <template>
   <div class="flex flex-col gap-6">
-    <div class="flex flex-col gap-2">
-      <h1 class="text-2xl font-semibold tracking-tight">{{ preferences.t("Nav_Subscriptions") }}</h1>
-      <p class="text-muted-foreground text-sm md:text-base">
-        {{ preferences.t("Page_SubscriptionsSubtitle") }}
-      </p>
-    </div>
+    <p class="text-muted-foreground text-sm md:text-base">
+      {{ preferences.t("Page_SubscriptionsSubtitle") }}
+    </p>
 
     <EmptyState
       v-if="!session.hasData"

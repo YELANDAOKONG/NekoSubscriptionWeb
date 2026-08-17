@@ -58,7 +58,7 @@ function clearSession(): void {
     <SidebarTrigger class="-ml-1" />
     <Separator orientation="vertical" class="h-4" />
     <div class="flex min-w-0 flex-1 flex-col">
-      <h2 class="truncate text-sm font-medium">{{ pageTitle }}</h2>
+      <h1 class="truncate text-sm font-medium">{{ pageTitle }}</h1>
       <p v-if="session.sourceName" class="text-muted-foreground truncate text-xs">
         {{ session.sourceName }}
       </p>

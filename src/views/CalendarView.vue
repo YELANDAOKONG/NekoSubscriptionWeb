@@ -5,7 +5,6 @@ import { computed, nextTick, ref, watch } from "vue"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Item, ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item"
 import EmptyState from "@/components/EmptyState.vue"
 import SampleCsvButton from "@/components/SampleCsvButton.vue"
 import { useCsvImport } from "@/composables/useCsvImport"
@@ -49,6 +48,7 @@ const today = useToday()
 const displayedMonth = ref(startOfMonth(today.value))
 const selectedDate = ref(today.value)
 const calendarGrid = ref<HTMLElement | null>(null)
+const selectedDayDetail = ref<HTMLElement | null>(null)
 const weekLength = daysPerWeek()
 
 watch(displayedMonth, (month) => {
@@ -107,9 +107,25 @@ function goToToday(): void {
   selectedDate.value = today.value
 }
 
-function selectDate(date: string): void {
+function selectDate(date: string, options?: { scrollToDetail?: boolean }): void {
   selectedDate.value = date
   displayedMonth.value = startOfMonth(date)
+  if (options?.scrollToDetail) {
+    void nextTick(scrollSelectedDayDetailIntoView)
+  }
+}
+
+function scrollSelectedDayDetailIntoView(): void {
+  if (window.matchMedia("(min-width: 1280px)").matches) {
+    return
+  }
+
+  selectedDayDetail.value?.scrollIntoView({
+    block: "nearest",
+    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? "auto"
+      : "smooth",
+  })
 }
 
 function focusSelectedDay(): void {
@@ -171,12 +187,9 @@ function onCalendarGridKeydown(event: KeyboardEvent): void {
 
 <template>
   <div class="flex flex-col gap-6">
-    <div class="flex flex-col gap-2">
-      <h1 class="text-2xl font-semibold tracking-tight">{{ preferences.t("Nav_Calendar") }}</h1>
-      <p class="text-muted-foreground text-sm md:text-base">
-        {{ preferences.t("Page_CalendarSubtitle") }}
-      </p>
-    </div>
+    <p class="text-muted-foreground text-sm md:text-base">
+      {{ preferences.t("Page_CalendarSubtitle") }}
+    </p>
 
     <EmptyState
       v-if="!session.hasData"
@@ -254,7 +267,7 @@ function onCalendarGridKeydown(event: KeyboardEvent): void {
                     day.isSelected && 'border-primary ring-ring ring-1',
                     day.isToday && !day.isSelected && 'border-primary/40',
                   )"
-                  @click="selectDate(day.date)"
+                  @click="selectDate(day.date, { scrollToDetail: true })"
                 >
                   <span class="flex w-full items-center justify-between text-xs sm:text-sm">
                     <span :class="cn('font-medium', day.isToday && 'text-primary')">
@@ -283,39 +296,42 @@ function onCalendarGridKeydown(event: KeyboardEvent): void {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            {{
-              selectedDay
-                ? formatIsoDate(selectedDay.date, preferences.resolvedLocale, "PPP")
-                : preferences.t("Calendar_Today")
-            }}
-          </CardTitle>
-          <CardDescription>
-            {{ preferences.t("Calendar_SelectedDaySummary", selectedDay?.payments.length ?? 0) }}
-          </CardDescription>
-        </CardHeader>
-        <CardContent class="flex flex-col gap-2">
-          <p v-if="!selectedDay || selectedDay.payments.length === 0" class="text-muted-foreground text-sm">
-            {{ preferences.t("Calendar_NoPayments") }}
-          </p>
-          <Item
-            v-for="payment in selectedDay?.payments ?? []"
-            :key="`${payment.subscriptionId}-${payment.scheduledOn}`"
-            variant="outline"
-            size="sm"
-          >
-            <ItemContent>
-              <ItemTitle>{{ payment.serviceName }}</ItemTitle>
-              <ItemDescription>{{ payment.providerName }}</ItemDescription>
-            </ItemContent>
-            <Badge variant="secondary" class="tabular-nums">
-              {{ formatMoney(payment.amount, preferences.resolvedLocale) }}
-            </Badge>
-          </Item>
-        </CardContent>
-      </Card>
+      <div ref="selectedDayDetail">
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              {{
+                selectedDay
+                  ? formatIsoDate(selectedDay.date, preferences.resolvedLocale, "PPP")
+                  : preferences.t("Calendar_Today")
+              }}
+            </CardTitle>
+            <CardDescription>
+              {{ preferences.t("Calendar_SelectedDaySummary", selectedDay?.payments.length ?? 0) }}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p v-if="!selectedDay || selectedDay.payments.length === 0" class="text-muted-foreground text-sm">
+              {{ preferences.t("Calendar_NoPayments") }}
+            </p>
+            <ul v-else class="divide-y rounded-lg border">
+              <li
+                v-for="payment in selectedDay.payments"
+                :key="`${payment.subscriptionId}-${payment.scheduledOn}`"
+                class="flex items-start justify-between gap-3 px-3 py-2.5"
+              >
+                <div class="min-w-0">
+                  <p class="truncate font-medium">{{ payment.serviceName }}</p>
+                  <p class="text-muted-foreground text-sm">{{ payment.providerName }}</p>
+                </div>
+                <p class="shrink-0 font-medium tabular-nums">
+                  {{ formatMoney(payment.amount, preferences.resolvedLocale) }}
+                </p>
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   </div>
 </template>

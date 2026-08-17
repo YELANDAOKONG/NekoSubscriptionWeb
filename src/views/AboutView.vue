@@ -21,12 +21,9 @@ const rules = ["About_Rule1", "About_Rule2", "About_Rule3", "About_Rule4", "Abou
 
 <template>
   <div class="flex flex-col gap-10">
-    <div class="flex flex-col gap-2">
-      <h1 class="text-2xl font-semibold tracking-tight">{{ preferences.t("Nav_About") }}</h1>
-      <p class="text-muted-foreground text-sm md:text-base">
-        {{ preferences.t("Page_AboutSubtitle") }}
-      </p>
-    </div>
+    <p class="text-muted-foreground text-sm md:text-base">
+      {{ preferences.t("Page_AboutSubtitle") }}
+    </p>
 
     <section class="flex max-w-prose flex-col gap-4">
       <div class="flex flex-col gap-2">

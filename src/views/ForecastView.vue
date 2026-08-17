@@ -82,12 +82,9 @@ function formatTotal(total: CurrencyAmountTotal): string {
 
 <template>
   <div class="flex flex-col gap-6">
-    <div class="flex flex-col gap-2">
-      <h1 class="text-2xl font-semibold tracking-tight">{{ preferences.t("Forecast_Title") }}</h1>
-      <p class="text-muted-foreground text-sm md:text-base">
-        {{ preferences.t("Page_OverviewSubtitle") }}
-      </p>
-    </div>
+    <p class="text-muted-foreground text-sm md:text-base">
+      {{ preferences.t("Page_OverviewSubtitle") }}
+    </p>
 
     <EmptyState
       v-if="!session.hasData"

@@ -6,7 +6,6 @@ import EmptyState from "@/components/EmptyState.vue"
 import SampleCsvButton from "@/components/SampleCsvButton.vue"
 import LayoutToggle, { type ListLayout } from "@/components/LayoutToggle.vue"
 import { Button } from "@/components/ui/button"
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Table,
   TableBody,
@@ -75,12 +74,9 @@ function formatMonthly(subscription: Subscription, amount: number): string {
 
 <template>
   <div class="flex flex-col gap-6">
-    <div class="flex flex-col gap-2">
-      <h1 class="text-2xl font-semibold tracking-tight">{{ preferences.t("Nav_Cost") }}</h1>
-      <p class="text-muted-foreground text-sm md:text-base">
-        {{ preferences.t("Page_CostSubtitle") }}
-      </p>
-    </div>
+    <p class="text-muted-foreground text-sm md:text-base">
+      {{ preferences.t("Page_CostSubtitle") }}
+    </p>
 
     <EmptyState
       v-if="!session.hasData"
@@ -100,60 +96,94 @@ function formatMonthly(subscription: Subscription, amount: number): string {
     </EmptyState>
 
     <template v-else>
-      <p v-if="session.excludedCount > 0" class="text-muted-foreground text-sm">
-        {{ preferences.t("Forecast_ExcludedSubscriptions", session.excludedCount) }}
-      </p>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>{{ preferences.t("Cost_Title") }}</CardTitle>
-        </CardHeader>
-        <CardContent class="flex flex-col gap-3">
+      <div>
+        <p class="text-muted-foreground text-sm">{{ preferences.t("Cost_Title") }}</p>
+        <div
+          v-if="session.monthlyCostTotals.length > 0"
+          class="mt-2 flex flex-col gap-1"
+        >
           <p
-            v-if="session.monthlyCostTotals.length === 0"
-            class="text-muted-foreground text-sm"
-          >
-            {{ preferences.t("Cost_EmptyDescription") }}
-          </p>
-          <div
             v-for="total in session.monthlyCostTotals"
             :key="`${total.currencyCode}-${total.currencyKind}`"
-            class="flex items-start justify-between gap-3 rounded-lg border p-3"
+            class="text-3xl font-semibold tracking-tight tabular-nums sm:text-4xl"
           >
-            <p class="font-medium">{{ total.currencyCode }}</p>
-            <p class="text-right font-semibold tabular-nums">{{ formatTotal(total) }}</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>{{ preferences.t("Cost_BreakdownTitle") }}</CardTitle>
-          <CardDescription>{{ preferences.t("Cost_BreakdownDescription") }}</CardDescription>
-          <CardAction v-if="rows.length > 0">
-            <LayoutToggle v-model="layout" />
-          </CardAction>
-        </CardHeader>
-        <CardContent>
-          <p
-            v-if="rows.length === 0"
-            class="text-muted-foreground text-sm"
-          >
-            {{ preferences.t("Cost_EmptyDescription") }}
+            {{ formatTotal(total) }}
           </p>
-          <div v-else-if="layout === 'cards'" class="grid gap-3 md:grid-cols-2">
-            <article
-              v-for="row in rows"
-              :key="row.subscription.id"
-              class="flex flex-col gap-2 rounded-lg border p-3"
-            >
-              <div class="min-w-0">
-                <p class="font-medium">{{ row.subscription.serviceName }}</p>
-                <p class="text-muted-foreground truncate text-sm">{{ row.subscription.providerName }}</p>
-              </div>
-              <dl class="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
-                <dt class="text-muted-foreground">{{ preferences.t("Column_Cycle") }}</dt>
-                <dd class="text-right">
+        </div>
+        <p v-else class="text-muted-foreground mt-2 text-sm">
+          {{ preferences.t("Cost_EmptyDescription") }}
+        </p>
+        <p v-if="session.excludedCount > 0" class="text-muted-foreground mt-2 text-sm">
+          {{ preferences.t("Forecast_ExcludedSubscriptions", session.excludedCount) }}
+        </p>
+      </div>
+
+      <section class="flex flex-col gap-3">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-semibold">{{ preferences.t("Cost_BreakdownTitle") }}</h2>
+            <p class="text-muted-foreground text-sm">
+              {{ preferences.t("Cost_BreakdownDescription") }}
+            </p>
+          </div>
+          <LayoutToggle v-if="rows.length > 0" v-model="layout" />
+        </div>
+        <p
+          v-if="rows.length === 0"
+          class="text-muted-foreground text-sm"
+        >
+          {{ preferences.t("Cost_EmptyDescription") }}
+        </p>
+        <div v-else-if="layout === 'cards'" class="grid gap-3 md:grid-cols-2">
+          <article
+            v-for="row in rows"
+            :key="row.subscription.id"
+            class="flex flex-col gap-2 rounded-lg border p-3"
+          >
+            <div class="min-w-0">
+              <p class="font-medium">{{ row.subscription.serviceName }}</p>
+              <p class="text-muted-foreground truncate text-sm">{{ row.subscription.providerName }}</p>
+            </div>
+            <dl class="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
+              <dt class="text-muted-foreground">{{ preferences.t("Column_Cycle") }}</dt>
+              <dd class="text-right">
+                {{
+                  cycleLabel(
+                    preferences.resolvedLocale,
+                    row.subscription.intervalUnit,
+                    row.subscription.intervalCount,
+                  )
+                }}
+              </dd>
+              <dt class="text-muted-foreground">{{ preferences.t("Column_Amount") }}</dt>
+              <dd class="text-right tabular-nums">
+                {{ formatMoney(row.subscription.billingAmount, preferences.resolvedLocale) }}
+              </dd>
+              <dt class="text-muted-foreground">{{ preferences.t("Column_MonthlyCost") }}</dt>
+              <dd class="text-right font-medium tabular-nums">
+                {{ formatMonthly(row.subscription, row.monthlyAmount) }}
+              </dd>
+            </dl>
+          </article>
+        </div>
+        <div v-else class="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead class="sticky left-0 z-10 bg-background">{{ preferences.t("Column_Provider") }}</TableHead>
+                <TableHead>{{ preferences.t("Column_Service") }}</TableHead>
+                <TableHead>{{ preferences.t("Column_Cycle") }}</TableHead>
+                <TableHead>{{ preferences.t("Column_Amount") }}</TableHead>
+                <TableHead>{{ preferences.t("Column_MonthlyCost") }}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-for="row in rows" :key="row.subscription.id" class="group">
+                <TableCell class="sticky left-0 z-10 bg-background font-medium group-hover:bg-muted/50">
+                  {{ row.subscription.providerName }}
+                </TableCell>
+                <TableCell>{{ row.subscription.serviceName }}</TableCell>
+                <TableCell>
                   {{
                     cycleLabel(
                       preferences.resolvedLocale,
@@ -161,56 +191,18 @@ function formatMonthly(subscription: Subscription, amount: number): string {
                       row.subscription.intervalCount,
                     )
                   }}
-                </dd>
-                <dt class="text-muted-foreground">{{ preferences.t("Column_Amount") }}</dt>
-                <dd class="text-right tabular-nums">
+                </TableCell>
+                <TableCell class="tabular-nums">
                   {{ formatMoney(row.subscription.billingAmount, preferences.resolvedLocale) }}
-                </dd>
-                <dt class="text-muted-foreground">{{ preferences.t("Column_MonthlyCost") }}</dt>
-                <dd class="text-right font-medium tabular-nums">
+                </TableCell>
+                <TableCell class="tabular-nums">
                   {{ formatMonthly(row.subscription, row.monthlyAmount) }}
-                </dd>
-              </dl>
-            </article>
-          </div>
-          <div v-else class="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead class="sticky left-0 z-10 bg-card">{{ preferences.t("Column_Provider") }}</TableHead>
-                  <TableHead>{{ preferences.t("Column_Service") }}</TableHead>
-                  <TableHead>{{ preferences.t("Column_Cycle") }}</TableHead>
-                  <TableHead>{{ preferences.t("Column_Amount") }}</TableHead>
-                  <TableHead>{{ preferences.t("Column_MonthlyCost") }}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow v-for="row in rows" :key="row.subscription.id" class="group">
-                  <TableCell class="sticky left-0 z-10 bg-card font-medium group-hover:bg-muted/50">
-                    {{ row.subscription.providerName }}
-                  </TableCell>
-                  <TableCell>{{ row.subscription.serviceName }}</TableCell>
-                  <TableCell>
-                    {{
-                      cycleLabel(
-                        preferences.resolvedLocale,
-                        row.subscription.intervalUnit,
-                        row.subscription.intervalCount,
-                      )
-                    }}
-                  </TableCell>
-                  <TableCell class="tabular-nums">
-                    {{ formatMoney(row.subscription.billingAmount, preferences.resolvedLocale) }}
-                  </TableCell>
-                  <TableCell class="tabular-nums">
-                    {{ formatMonthly(row.subscription, row.monthlyAmount) }}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+      </section>
     </template>
   </div>
 </template>

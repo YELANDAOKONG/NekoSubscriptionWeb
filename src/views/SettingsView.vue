@@ -46,12 +46,9 @@ function onThemeChange(value: unknown): void {
 
 <template>
   <div class="flex flex-col gap-6">
-    <div class="flex flex-col gap-2">
-      <h1 class="text-2xl font-semibold tracking-tight">{{ preferences.t("Nav_Settings") }}</h1>
-      <p class="text-muted-foreground text-sm md:text-base">
-        {{ preferences.t("Page_SettingsSubtitle") }}
-      </p>
-    </div>
+    <p class="text-muted-foreground text-sm md:text-base">
+      {{ preferences.t("Page_SettingsSubtitle") }}
+    </p>
 
     <FieldGroup class="max-w-xl">
       <Field>
