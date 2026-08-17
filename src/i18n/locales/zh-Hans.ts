@@ -190,7 +190,7 @@ export const zhHans: Record<MessageKey, string> = {
   Import_CannotImport: "请先修复下列错误再导入。",
   Severity_Error: "错误",
   Severity_Warning: "警告",
-  About_IntroTitle: "NekoSubscriptionWeb",
+  About_IntroTitle: "NekoSubscription (Web)",
   About_IntroBody:
     "NekoSubscription 的纯浏览器分析客户端。在当前标签页导入 CSV，即可预估即将到来的扣款。数据不会上传；刷新页面会清除已导入的行。本浏览器仅保存语言和主题。",
   About_IntroCompanion: "它读取并写出与桌面版相同的 13 列 CSV 格式，不会编辑、存储或同步订阅。",
@@ -198,10 +198,6 @@ export const zhHans: Record<MessageKey, string> = {
   About_CsvTitle: "13 列 CSV 格式",
   About_CsvDescription:
     "字段按列位置匹配，表头文字可以是英文、中文或任意内容。请使用逗号分隔的 UTF-8 文件，大小不超过 10 MB。",
-  About_CsvGroupIdentity: "服务商、服务与账户",
-  About_CsvGroupBilling: "金额与周期",
-  About_CsvGroupDates: "日期",
-  About_CsvGroupPayment: "状态、支付与备注",
   About_CsvIndex: "#",
   About_CsvHeader: "表头（常见）",
   About_CsvMeaning: "含义",

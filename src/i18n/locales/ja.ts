@@ -190,7 +190,7 @@ export const ja: Record<MessageKey, string> = {
   Import_CannotImport: "読み込む前に次のエラーを修正してください。",
   Severity_Error: "エラー",
   Severity_Warning: "警告",
-  About_IntroTitle: "NekoSubscriptionWeb",
+  About_IntroTitle: "NekoSubscription (Web)",
   About_IntroBody:
     "NekoSubscription 向けのブラウザ専用分析クライアントです。このタブで CSV を読み込み、今後の請求を予測します。データは送信されず、再読み込みで行は消えます。このブラウザに保存されるのは言語とテーマだけです。",
   About_IntroCompanion: "デスクトップ版と同じ 13 列 CSV を読み書きします。サブスクリプションの編集、保存、同期は行いません。",
@@ -198,10 +198,6 @@ export const ja: Record<MessageKey, string> = {
   About_CsvTitle: "13 列 CSV 形式",
   About_CsvDescription:
     "列は位置で対応付けます。見出し文字は英語、中国語、その他でも構いません。カンマ区切りの UTF-8 ファイルを使い、サイズは 10 MB 以下です。",
-  About_CsvGroupIdentity: "提供者、サービス、アカウント",
-  About_CsvGroupBilling: "金額と周期",
-  About_CsvGroupDates: "日付",
-  About_CsvGroupPayment: "状態、支払い、メモ",
   About_CsvIndex: "#",
   About_CsvHeader: "見出し（一般的）",
   About_CsvMeaning: "意味",

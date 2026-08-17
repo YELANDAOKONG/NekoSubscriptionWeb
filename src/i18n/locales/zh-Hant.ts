@@ -190,7 +190,7 @@ export const zhHant: Record<MessageKey, string> = {
   Import_CannotImport: "請先修正下列錯誤再匯入。",
   Severity_Error: "錯誤",
   Severity_Warning: "警告",
-  About_IntroTitle: "NekoSubscriptionWeb",
+  About_IntroTitle: "NekoSubscription (Web)",
   About_IntroBody:
     "NekoSubscription 的純瀏覽器分析客戶端。在目前分頁匯入 CSV，即可預估即將到來的扣款。資料不會上傳；重新整理頁面會清除已匯入的列。本瀏覽器僅儲存語言和主題。",
   About_IntroCompanion: "它讀取並寫出與桌面版相同的 13 欄 CSV 格式，不會編輯、儲存或同步訂閱。",
@@ -198,10 +198,6 @@ export const zhHant: Record<MessageKey, string> = {
   About_CsvTitle: "13 欄 CSV 格式",
   About_CsvDescription:
     "欄位依欄位位置配對，表頭文字可以是英文、中文或任意內容。請使用逗號分隔的 UTF-8 檔案，大小不超過 10 MB。",
-  About_CsvGroupIdentity: "服務商、服務與帳戶",
-  About_CsvGroupBilling: "金額與週期",
-  About_CsvGroupDates: "日期",
-  About_CsvGroupPayment: "狀態、支付與備註",
   About_CsvIndex: "#",
   About_CsvHeader: "表頭（常見）",
   About_CsvMeaning: "含義",

@@ -198,7 +198,7 @@ export const en = {
   Import_CannotImport: "Fix the errors below before importing.",
   Severity_Error: "Error",
   Severity_Warning: "Warning",
-  About_IntroTitle: "NekoSubscriptionWeb",
+  About_IntroTitle: "NekoSubscription (Web)",
   About_IntroBody:
     "A browser-only analysis client for NekoSubscription. Import a CSV in this tab to forecast upcoming charges. Nothing is uploaded, and refreshing the page clears the imported rows. Language and theme are the only values saved in this browser.",
   About_IntroCompanion:
@@ -207,10 +207,6 @@ export const en = {
   About_CsvTitle: "13-column CSV format",
   About_CsvDescription:
     "Columns are matched by position. Header text can be English, Chinese, or anything else. Use a comma-separated UTF-8 file of at most 10 MB.",
-  About_CsvGroupIdentity: "Provider, service, and account",
-  About_CsvGroupBilling: "Amount and cycle",
-  About_CsvGroupDates: "Dates",
-  About_CsvGroupPayment: "Status, payment, and notes",
   About_CsvIndex: "#",
   About_CsvHeader: "Header (typical)",
   About_CsvMeaning: "Meaning",
