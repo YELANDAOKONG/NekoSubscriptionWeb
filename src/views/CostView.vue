@@ -3,6 +3,7 @@ import { computed, ref } from "vue"
 import { Coins, Upload } from "@lucide/vue"
 
 import EmptyState from "@/components/EmptyState.vue"
+import SampleCsvButton from "@/components/SampleCsvButton.vue"
 import LayoutToggle, { type ListLayout } from "@/components/LayoutToggle.vue"
 import { Button } from "@/components/ui/button"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -89,10 +90,13 @@ function formatMonthly(subscription: Subscription, amount: number): string {
       <template #icon>
         <Coins />
       </template>
-      <Button @click="openImport()">
-        <Upload />
-        {{ preferences.t("Settings_ImportCsv") }}
-      </Button>
+      <div class="flex flex-wrap justify-center gap-2">
+        <Button @click="openImport()">
+          <Upload />
+          {{ preferences.t("Settings_ImportCsv") }}
+        </Button>
+        <SampleCsvButton />
+      </div>
     </EmptyState>
 
     <template v-else>

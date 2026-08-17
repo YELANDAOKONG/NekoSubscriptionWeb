@@ -118,6 +118,8 @@ export const zhHans: Record<MessageKey, string> = {
   Status_CsvImportFailed: "无法导入 CSV，未添加任何数据。",
   Status_CsvExportCompleted: "已导出 {0} 项订阅。",
   Status_CsvExportFailed: "无法导出 CSV 文件。",
+  Status_CsvSampleDownloaded: "已下载含 {0} 条示例的 CSV。",
+  Status_CsvSampleFailed: "无法下载示例 CSV。",
   Status_CsvTooLarge: "CSV 文件不能超过 10 MB。",
   Status_SessionCleared: "已清除导入的订阅。",
   ImportIssue_MalformedCsv: "CSV 引号或分隔符格式错误",
@@ -195,6 +197,7 @@ export const zhHans: Record<MessageKey, string> = {
     "NekoSubscription 的纯浏览器分析客户端。在当前标签页导入 CSV，即可预估即将到来的扣款。数据不会上传；刷新页面会清除已导入的行。本浏览器仅保存语言和主题。",
   About_IntroCompanion: "它读取并写出与桌面版相同的 13 列 CSV 格式，不会编辑、存储或同步订阅。",
   About_OpenRepository: "打开 GitHub 仓库",
+  About_DownloadSample: "下载示例 CSV",
   About_CsvTitle: "13 列 CSV 格式",
   About_CsvDescription:
     "字段按列位置匹配，表头文字可以是英文、中文或任意内容。请使用逗号分隔的 UTF-8 文件，大小不超过 10 MB。",

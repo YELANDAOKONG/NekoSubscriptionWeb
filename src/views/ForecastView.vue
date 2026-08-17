@@ -4,6 +4,7 @@ import { computed, ref } from "vue"
 import { AlertTriangle, LayoutDashboard, Upload } from "@lucide/vue"
 
 import EmptyState from "@/components/EmptyState.vue"
+import SampleCsvButton from "@/components/SampleCsvButton.vue"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -96,10 +97,13 @@ function formatTotal(total: CurrencyAmountTotal): string {
       <template #icon>
         <LayoutDashboard />
       </template>
-      <Button @click="openImport()">
-        <Upload />
-        {{ preferences.t("Settings_ImportCsv") }}
-      </Button>
+      <div class="flex flex-wrap justify-center gap-2">
+        <Button @click="openImport()">
+          <Upload />
+          {{ preferences.t("Settings_ImportCsv") }}
+        </Button>
+        <SampleCsvButton />
+      </div>
     </EmptyState>
 
     <template v-else>

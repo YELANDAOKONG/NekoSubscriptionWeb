@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ExternalLink } from "@lucide/vue"
 
+import SampleCsvButton from "@/components/SampleCsvButton.vue"
 import { Button } from "@/components/ui/button"
 import {
   Table,
@@ -55,6 +56,7 @@ const rules = ["About_Rule1", "About_Rule2", "About_Rule3", "About_Rule4", "Abou
         <p class="text-muted-foreground text-sm">
           {{ preferences.t("About_CsvDescription") }}
         </p>
+        <SampleCsvButton />
       </div>
       <div class="overflow-x-auto rounded-md border">
         <Table>

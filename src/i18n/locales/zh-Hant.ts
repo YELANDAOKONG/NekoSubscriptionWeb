@@ -118,6 +118,8 @@ export const zhHant: Record<MessageKey, string> = {
   Status_CsvImportFailed: "無法匯入 CSV，未新增任何資料。",
   Status_CsvExportCompleted: "已匯出 {0} 項訂閱。",
   Status_CsvExportFailed: "無法匯出 CSV 檔案。",
+  Status_CsvSampleDownloaded: "已下載含 {0} 筆示例的 CSV。",
+  Status_CsvSampleFailed: "無法下載示例 CSV。",
   Status_CsvTooLarge: "CSV 檔案不能超過 10 MB。",
   Status_SessionCleared: "已清除匯入的訂閱。",
   ImportIssue_MalformedCsv: "CSV 引號或分隔符格式錯誤",
@@ -195,6 +197,7 @@ export const zhHant: Record<MessageKey, string> = {
     "NekoSubscription 的純瀏覽器分析客戶端。在目前分頁匯入 CSV，即可預估即將到來的扣款。資料不會上傳；重新整理頁面會清除已匯入的列。本瀏覽器僅儲存語言和主題。",
   About_IntroCompanion: "它讀取並寫出與桌面版相同的 13 欄 CSV 格式，不會編輯、儲存或同步訂閱。",
   About_OpenRepository: "開啟 GitHub 儲存庫",
+  About_DownloadSample: "下載示例 CSV",
   About_CsvTitle: "13 欄 CSV 格式",
   About_CsvDescription:
     "欄位依欄位位置配對，表頭文字可以是英文、中文或任意內容。請使用逗號分隔的 UTF-8 檔案，大小不超過 10 MB。",

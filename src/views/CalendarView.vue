@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Item, ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item"
 import EmptyState from "@/components/EmptyState.vue"
+import SampleCsvButton from "@/components/SampleCsvButton.vue"
 import { useCsvImport } from "@/composables/useCsvImport"
 import { useToday } from "@/composables/useToday"
 import { projectCashFlow } from "@/cashflow/project"
@@ -185,10 +186,13 @@ function onCalendarGridKeydown(event: KeyboardEvent): void {
       <template #icon>
         <CalendarDays />
       </template>
-      <Button @click="openImport()">
-        <Upload />
-        {{ preferences.t("Settings_ImportCsv") }}
-      </Button>
+      <div class="flex flex-wrap justify-center gap-2">
+        <Button @click="openImport()">
+          <Upload />
+          {{ preferences.t("Settings_ImportCsv") }}
+        </Button>
+        <SampleCsvButton />
+      </div>
     </EmptyState>
 
     <div v-else class="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(18rem,1fr)]">

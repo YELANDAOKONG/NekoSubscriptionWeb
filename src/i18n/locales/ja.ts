@@ -118,6 +118,8 @@ export const ja: Record<MessageKey, string> = {
   Status_CsvImportFailed: "CSV を読み込めませんでした。行は追加されていません。",
   Status_CsvExportCompleted: "{0} 件のサブスクリプションを書き出しました。",
   Status_CsvExportFailed: "CSV ファイルを書き出せませんでした。",
+  Status_CsvSampleDownloaded: "サンプル CSV（{0} 件）をダウンロードしました。",
+  Status_CsvSampleFailed: "サンプル CSV をダウンロードできませんでした。",
   Status_CsvTooLarge: "CSV ファイルは 10 MB を超えられません。",
   Status_SessionCleared: "読み込んだサブスクリプションをクリアしました。",
   ImportIssue_MalformedCsv: "CSV の引用符または区切りが不正です",
@@ -195,6 +197,7 @@ export const ja: Record<MessageKey, string> = {
     "NekoSubscription 向けのブラウザ専用分析クライアントです。このタブで CSV を読み込み、今後の請求を予測します。データは送信されず、再読み込みで行は消えます。このブラウザに保存されるのは言語とテーマだけです。",
   About_IntroCompanion: "デスクトップ版と同じ 13 列 CSV を読み書きします。サブスクリプションの編集、保存、同期は行いません。",
   About_OpenRepository: "GitHub リポジトリを開く",
+  About_DownloadSample: "サンプル CSV をダウンロード",
   About_CsvTitle: "13 列 CSV 形式",
   About_CsvDescription:
     "列は位置で対応付けます。見出し文字は英語、中国語、その他でも構いません。カンマ区切りの UTF-8 ファイルを使い、サイズは 10 MB 以下です。",

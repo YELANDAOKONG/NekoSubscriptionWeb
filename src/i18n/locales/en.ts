@@ -123,6 +123,8 @@ export const en = {
   Status_CsvImportFailed: "Unable to import the CSV file. No rows were added.",
   Status_CsvExportCompleted: "Exported {0} subscription(s).",
   Status_CsvExportFailed: "Unable to export the CSV file.",
+  Status_CsvSampleDownloaded: "Downloaded a sample CSV with {0} example row(s).",
+  Status_CsvSampleFailed: "Unable to download the sample CSV.",
   Status_CsvTooLarge: "The CSV file cannot exceed 10 MB.",
   Status_SessionCleared: "Imported subscriptions were cleared.",
   ImportIssue_MalformedCsv: "malformed CSV quoting or delimiters",
@@ -204,6 +206,7 @@ export const en = {
   About_IntroCompanion:
     "It reads and writes the same 13-column CSV as the desktop app. It does not edit, store, or sync subscriptions.",
   About_OpenRepository: "Open GitHub repository",
+  About_DownloadSample: "Download sample CSV",
   About_CsvTitle: "13-column CSV format",
   About_CsvDescription:
     "Columns are matched by position. Header text can be English, Chinese, or anything else. Use a comma-separated UTF-8 file of at most 10 MB.",
