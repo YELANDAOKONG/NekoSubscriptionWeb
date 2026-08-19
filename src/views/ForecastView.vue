@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useResizeObserver } from "@vueuse/core"
-import { computed, ref } from "vue"
-import { RouterLink } from "vue-router"
+import { computed, ref, watch } from "vue"
+import { RouterLink, useRoute, useRouter } from "vue-router"
 import { AlertTriangle, LayoutDashboard, Upload } from "@lucide/vue"
 
 import EmptyState from "@/components/EmptyState.vue"
@@ -13,12 +13,22 @@ import { useCsvImport } from "@/composables/useCsvImport"
 import type { CurrencyAmountTotal } from "@/domain/types"
 import { FORECAST_PERIODS } from "@/domain/types"
 import { formatIsoDate, formatMoney } from "@/i18n/format"
-import { calendarLocation } from "@/navigation"
+import {
+  ANALYSIS_METRIC_LINK_CLASS,
+  ANALYSIS_ROW_LINK_CLASS,
+  calendarLocation,
+  compactQuery,
+  forecastDaysQueryValue,
+  parseForecastDays,
+  subscriptionsLocation,
+} from "@/navigation"
 import { usePreferencesStore } from "@/stores/preferences"
 import { useSessionStore } from "@/stores/session"
 
 const preferences = usePreferencesStore()
 const session = useSessionStore()
+const route = useRoute()
+const router = useRouter()
 const { openImport } = useCsvImport()
 
 const upcoming = computed(() => session.forecast.items)
@@ -30,10 +40,25 @@ const nextPaymentLabel = computed(() => {
 
   return formatIsoDate(first.scheduledOn, preferences.resolvedLocale)
 })
+watch(
+  () => route.query.days,
+  (raw) => {
+    const days = parseForecastDays(raw)
+    if (days !== null) {
+      session.setForecastDayCount(days)
+    }
+  },
+  { immediate: true },
+)
+
 const periodValue = computed({
   get: () => String(session.forecastDayCount),
   set: (value: string | number) => {
-    session.setForecastDayCount(Number(value))
+    const days = Number(value)
+    session.setForecastDayCount(days)
+    void router.replace({
+      query: compactQuery(route.query, { days: forecastDaysQueryValue(days) }),
+    })
   },
 })
 const periodScroller = ref<HTMLElement | null>(null)
@@ -154,7 +179,14 @@ function formatTotal(total: CurrencyAmountTotal): string {
       <dl class="grid grid-cols-2 gap-x-6 gap-y-3 border-y py-4 sm:grid-cols-4">
         <div>
           <dt class="text-muted-foreground text-xs">{{ preferences.t("Dashboard_MetricActive") }}</dt>
-          <dd class="mt-1 text-lg font-medium tabular-nums">{{ session.activeSubscriptions.length }}</dd>
+          <dd class="mt-1">
+            <RouterLink
+              :to="subscriptionsLocation({ status: 'active' })"
+              :class="[ANALYSIS_METRIC_LINK_CLASS, 'text-lg font-medium tabular-nums']"
+            >
+              {{ session.activeSubscriptions.length }}
+            </RouterLink>
+          </dd>
         </div>
         <div>
           <dt class="text-muted-foreground text-xs">{{ preferences.t("Dashboard_MetricPayments") }}</dt>
@@ -162,11 +194,27 @@ function formatTotal(total: CurrencyAmountTotal): string {
         </div>
         <div>
           <dt class="text-muted-foreground text-xs">{{ preferences.t("Dashboard_MetricInactive") }}</dt>
-          <dd class="mt-1 text-lg font-medium tabular-nums">{{ session.excludedCount }}</dd>
+          <dd class="mt-1">
+            <RouterLink
+              :to="subscriptionsLocation({ status: 'inactive' })"
+              :class="[ANALYSIS_METRIC_LINK_CLASS, 'text-lg font-medium tabular-nums']"
+            >
+              {{ session.excludedCount }}
+            </RouterLink>
+          </dd>
         </div>
         <div>
           <dt class="text-muted-foreground text-xs">{{ preferences.t("Dashboard_NextPayment") }}</dt>
-          <dd class="mt-1 text-lg font-medium">{{ nextPaymentLabel }}</dd>
+          <dd class="mt-1">
+            <RouterLink
+              v-if="upcoming[0]"
+              :to="calendarLocation(upcoming[0].scheduledOn)"
+              :class="[ANALYSIS_METRIC_LINK_CLASS, 'text-lg font-medium']"
+            >
+              {{ nextPaymentLabel }}
+            </RouterLink>
+            <span v-else class="text-lg font-medium">{{ nextPaymentLabel }}</span>
+          </dd>
         </div>
       </dl>
 
@@ -193,7 +241,7 @@ function formatTotal(total: CurrencyAmountTotal): string {
         <li v-for="item in session.overduePayments" :key="item.subscription.id">
           <RouterLink
             :to="calendarLocation(item.dueOn)"
-            class="hover:bg-muted/50 flex items-start justify-between gap-3 px-3 py-2.5"
+            :class="ANALYSIS_ROW_LINK_CLASS"
           >
             <div class="min-w-0">
               <p class="truncate font-medium">{{ item.subscription.serviceName }}</p>
@@ -226,7 +274,7 @@ function formatTotal(total: CurrencyAmountTotal): string {
           <li v-for="item in upcoming" :key="`${item.subscriptionId}-${item.scheduledOn}`">
             <RouterLink
               :to="calendarLocation(item.scheduledOn)"
-              class="hover:bg-muted/50 flex items-start justify-between gap-3 px-3 py-2.5"
+              :class="ANALYSIS_ROW_LINK_CLASS"
             >
               <div class="min-w-0">
                 <p class="truncate font-medium">{{ item.serviceName }}</p>

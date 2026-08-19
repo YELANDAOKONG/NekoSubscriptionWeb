@@ -33,11 +33,17 @@ watch(
 </script>
 
 <template>
+  <a
+    href="#main-content"
+    class="bg-background text-foreground focus:ring-ring sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[300] focus:rounded-md focus:px-3 focus:py-2 focus:ring-2"
+  >
+    {{ preferences.t("A11y_SkipToContent") }}
+  </a>
   <SidebarProvider>
     <AppSidebar />
     <SidebarInset>
       <AppHeader />
-      <div class="flex-1 p-4 md:p-6">
+      <div id="main-content" tabindex="-1" class="flex-1 scroll-mt-14 p-4 outline-none md:p-6">
         <RouterView />
       </div>
     </SidebarInset>

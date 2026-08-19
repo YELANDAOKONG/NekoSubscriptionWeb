@@ -63,7 +63,7 @@ function clearSession(): void {
             {{ preferences.t("Common_Clear") }}
           </Button>
         </TooltipTrigger>
-        <TooltipContent>{{ preferences.t("Settings_SessionDescription") }}</TooltipContent>
+        <TooltipContent>{{ preferences.t("Settings_ClearImported") }}</TooltipContent>
       </Tooltip>
       <Button
         variant="outline"

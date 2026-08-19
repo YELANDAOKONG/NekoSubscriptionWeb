@@ -1,6 +1,7 @@
 import type {
   CurrencyAmountTotal,
   CurrencyKind,
+  Money,
   OverduePayment,
   Subscription,
 } from "@/domain/types"
@@ -52,6 +53,15 @@ export function summarizeOverdueFunds(payments: readonly OverduePayment[]): Curr
       payment.subscription.billingAmount.currencyKind,
       payment.subscription.billingAmount.amount,
     )
+  }
+
+  return sortCurrencyTotals(totals)
+}
+
+export function summarizeItemAmounts(items: readonly { amount: Money }[]): CurrencyAmountTotal[] {
+  const totals = new Map<string, CurrencyAmountTotal>()
+  for (const item of items) {
+    addAmount(totals, item.amount.currencyCode, item.amount.currencyKind, item.amount.amount)
   }
 
   return sortCurrencyTotals(totals)

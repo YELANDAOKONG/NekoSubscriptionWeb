@@ -259,5 +259,6 @@ html[lang="ja"] {
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    touch-action: manipulation;
   }
 }

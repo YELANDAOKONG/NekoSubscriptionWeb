@@ -43,6 +43,7 @@ const parseResult = ref<CsvParseResult | null>(null)
 const selectedName = ref<string | null>(null)
 const isReading = ref(false)
 const isDialogDragging = ref(false)
+let dropZoneDragDepth = 0
 
 const preview = computed(() => parseResult.value?.preview ?? null)
 
@@ -83,6 +84,7 @@ function resetPreview(): void {
   selectedName.value = null
   isReading.value = false
   isDialogDragging.value = false
+  dropZoneDragDepth = 0
   if (fileInput.value) {
     fileInput.value.value = ""
   }
@@ -146,17 +148,26 @@ async function applyFile(file: File): Promise<void> {
   }
 }
 
-function onDialogDragOver(event: DragEvent): void {
+function onDialogDragEnter(event: DragEvent): void {
   event.preventDefault()
+  dropZoneDragDepth += 1
   isDialogDragging.value = true
 }
 
+function onDialogDragOver(event: DragEvent): void {
+  event.preventDefault()
+}
+
 function onDialogDragLeave(): void {
-  isDialogDragging.value = false
+  dropZoneDragDepth = Math.max(0, dropZoneDragDepth - 1)
+  if (dropZoneDragDepth === 0) {
+    isDialogDragging.value = false
+  }
 }
 
 async function onDialogDrop(event: DragEvent): Promise<void> {
   event.preventDefault()
+  dropZoneDragDepth = 0
   isDialogDragging.value = false
   const file = event.dataTransfer?.files[0]
   if (file) {
@@ -181,7 +192,7 @@ function confirmImport(): void {
 <template>
   <Dialog v-model:open="importOpen">
     <DialogContent
-      class="flex max-h-[90vh] max-w-[calc(100%-1.5rem)] flex-col overflow-hidden sm:max-w-2xl"
+      class="flex max-h-[90vh] max-w-[calc(100%-1.5rem)] flex-col overflow-hidden overscroll-contain sm:max-w-2xl"
       @open-auto-focus="onOpenAutoFocus"
     >
       <DialogHeader>
@@ -191,7 +202,7 @@ function confirmImport(): void {
         </DialogDescription>
       </DialogHeader>
 
-      <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
+      <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain">
         <input
           ref="fileInput"
           type="file"
@@ -205,10 +216,11 @@ function confirmImport(): void {
           :disabled="isReading"
           :aria-busy="isReading"
           :class="cn(
-            'hover:bg-accent/40 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-all duration-100 ease-out active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100',
+            'hover:bg-accent/40 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-[border-color,background-color,transform] duration-100 ease-out active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100',
             isDialogDragging ? 'border-primary bg-accent/60' : 'border-muted-foreground/30',
           )"
           @click="chooseFile"
+          @dragenter="onDialogDragEnter"
           @dragover="onDialogDragOver"
           @dragleave="onDialogDragLeave"
           @drop="onDialogDrop"

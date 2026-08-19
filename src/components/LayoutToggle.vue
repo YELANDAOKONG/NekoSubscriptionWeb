@@ -2,9 +2,10 @@
 import { LayoutGrid, Table } from "@lucide/vue"
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import type { ListLayout } from "@/navigation"
 import { usePreferencesStore } from "@/stores/preferences"
 
-export type ListLayout = "table" | "cards"
+export type { ListLayout }
 
 const layout = defineModel<ListLayout>({ required: true })
 const preferences = usePreferencesStore()

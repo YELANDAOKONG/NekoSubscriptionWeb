@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import EmptyState from "@/components/EmptyState.vue"
 import SampleCsvButton from "@/components/SampleCsvButton.vue"
+import { summarizeItemAmounts } from "@/cashflow/cost"
 import { useCsvImport } from "@/composables/useCsvImport"
 import { useToday } from "@/composables/useToday"
 import { projectCashFlow } from "@/cashflow/project"
@@ -20,8 +21,9 @@ import {
   startOfMonth,
   weekdayMondayFirst,
 } from "@/domain/dates"
-import { CALENDAR_DAY_COUNT, type CashFlowItem } from "@/domain/types"
+import { CALENDAR_DAY_COUNT, type CashFlowItem, type CurrencyAmountTotal } from "@/domain/types"
 import { formatIsoDate, formatMoney, formatMonthTitle } from "@/i18n/format"
+import { compactQuery, queryParam } from "@/navigation"
 import { usePreferencesStore } from "@/stores/preferences"
 import { useSessionStore } from "@/stores/session"
 import { cn } from "@/lib/utils"
@@ -91,6 +93,28 @@ const selectedDay = computed(() =>
   days.value.find((day) => day.date === selectedDate.value) ?? null,
 )
 
+const selectedDayTotals = computed(() => summarizeItemAmounts(selectedDay.value?.payments ?? []))
+
+function formatTotal(total: CurrencyAmountTotal): string {
+  return formatMoney(
+    {
+      amount: total.totalAmount,
+      currencyCode: total.currencyCode,
+      currencyKind: total.currencyKind,
+    },
+    preferences.resolvedLocale,
+  )
+}
+
+function dayAriaLabel(day: CalendarDay): string {
+  const dateLabel = formatIsoDate(day.date, preferences.resolvedLocale)
+  if (day.payments.length === 0) {
+    return dateLabel
+  }
+
+  return preferences.t("Calendar_DayWithPayments", dateLabel, day.payments.length)
+}
+
 function goToPreviousMonth(): void {
   selectDate(addMonths(selectedDate.value, -1))
 }
@@ -106,6 +130,9 @@ function goToToday(): void {
 function selectDate(date: string, options?: { scrollToDetail?: boolean }): void {
   selectedDate.value = date
   displayedMonth.value = startOfMonth(date)
+  if (queryParam(route.query.date) !== date) {
+    void router.replace({ query: compactQuery(route.query, { date }) })
+  }
   if (options?.scrollToDetail) {
     void nextTick(scrollSelectedDayDetailIntoView)
   }
@@ -130,129 +157,77 @@ function focusSelectedDay(): void {
     ?.focus()
 }
 
-function isEditableTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) {
-    return false
-  }
-
-  return (
-    target.isContentEditable
-    || target.closest("input, textarea, select, [contenteditable=true]") !== null
-  )
-}
-
-function isOverlayTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) {
-    return false
-  }
-
-  return (
-    target.closest('[role="dialog"], [role="menu"], [data-slot="dropdown-menu-content"]')
-    !== null
-  )
-}
-
-function shouldHandleCalendarKeys(event: KeyboardEvent): boolean {
-  if (!session.hasData || event.defaultPrevented) {
-    return false
-  }
-
-  if (event.altKey || event.ctrlKey || event.metaKey) {
-    return false
-  }
-
-  const target = event.target
-  if (isEditableTarget(target) || isOverlayTarget(target)) {
-    return false
-  }
-
-  if (target instanceof HTMLElement && target.closest('[data-slot="sidebar"]')) {
-    return false
-  }
-
-  return true
-}
-
-function moveSelectedDay(dayOffset: number, restoreGridFocus: boolean): void {
+function moveSelectedDay(dayOffset: number): void {
   selectDate(addDays(selectedDate.value, dayOffset))
-  if (restoreGridFocus) {
-    void nextTick(focusSelectedDay)
-  }
+  void nextTick(focusSelectedDay)
 }
 
 function onCalendarKeydown(event: KeyboardEvent): void {
-  if (!shouldHandleCalendarKeys(event)) {
+  if (!session.hasData || event.defaultPrevented) {
     return
   }
 
-  const target = event.target
-  const restoreGridFocus =
-    target === document.body
-    || target === document.documentElement
-    || (target instanceof Node && (calendarGrid.value?.contains(target) ?? false))
+  if (event.altKey || event.ctrlKey || event.metaKey) {
+    return
+  }
 
   switch (event.key) {
     case "ArrowLeft":
       event.preventDefault()
-      moveSelectedDay(-1, restoreGridFocus)
+      moveSelectedDay(-1)
       break
     case "ArrowRight":
       event.preventDefault()
-      moveSelectedDay(1, restoreGridFocus)
+      moveSelectedDay(1)
       break
     case "ArrowUp":
       event.preventDefault()
-      moveSelectedDay(-weekLength, restoreGridFocus)
+      moveSelectedDay(-weekLength)
       break
     case "ArrowDown":
       event.preventDefault()
-      moveSelectedDay(weekLength, restoreGridFocus)
+      moveSelectedDay(weekLength)
       break
     case "Home":
       event.preventDefault()
-      moveSelectedDay(-weekdayMondayFirst(selectedDate.value), restoreGridFocus)
+      moveSelectedDay(-weekdayMondayFirst(selectedDate.value))
       break
     case "End":
       event.preventDefault()
-      moveSelectedDay(weekLength - 1 - weekdayMondayFirst(selectedDate.value), restoreGridFocus)
+      moveSelectedDay(weekLength - 1 - weekdayMondayFirst(selectedDate.value))
       break
     case "PageUp":
       event.preventDefault()
       selectDate(addMonths(selectedDate.value, -1))
-      if (restoreGridFocus) {
-        void nextTick(focusSelectedDay)
-      }
+      void nextTick(focusSelectedDay)
       break
     case "PageDown":
       event.preventDefault()
       selectDate(addMonths(selectedDate.value, 1))
-      if (restoreGridFocus) {
-        void nextTick(focusSelectedDay)
-      }
+      void nextTick(focusSelectedDay)
       break
     default:
       break
   }
 }
 
-useEventListener(window, "keydown", onCalendarKeydown)
+useEventListener(calendarGrid, "keydown", onCalendarKeydown)
 
 watch(
-  () => route.query.date,
+  () => queryParam(route.query.date),
   (value) => {
-    if (typeof value !== "string") {
+    if (value === undefined) {
       return
     }
 
     const date = parseSupportedDate(value)
-    if (date === null) {
+    if (date === null || date === selectedDate.value) {
       return
     }
 
-    selectDate(date, { scrollToDetail: true })
-    const nextQuery = { ...route.query }
-    delete nextQuery.date
-    void router.replace({ query: nextQuery })
+    selectedDate.value = date
+    displayedMonth.value = startOfMonth(date)
+    void nextTick(scrollSelectedDayDetailIntoView)
   },
   { immediate: true },
 )
@@ -332,9 +307,9 @@ watch(
                   :aria-pressed="day.date === selectedDate"
                   :aria-selected="day.date === selectedDate"
                   :aria-current="day.isToday ? 'date' : undefined"
-                  :aria-label="formatIsoDate(day.date, preferences.resolvedLocale)"
+                  :aria-label="dayAriaLabel(day)"
                   :class="cn(
-                    'hover:bg-accent flex min-h-14 flex-col items-start rounded-md border p-1 text-left sm:min-h-24 sm:p-2',
+                    'hover:bg-accent focus-visible:ring-ring flex min-h-14 flex-col items-start rounded-md border p-1 text-left outline-none focus-visible:ring-2 sm:min-h-24 sm:p-2',
                     day.inMonth ? 'bg-background' : 'bg-muted/40 text-muted-foreground',
                     day.date === selectedDate && 'border-primary ring-ring ring-1',
                     day.isToday && day.date !== selectedDate && 'border-primary/40',
@@ -383,6 +358,17 @@ watch(
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <p
+              v-if="selectedDayTotals.length > 0"
+              class="text-foreground mb-3 flex flex-wrap gap-x-4 gap-y-1 font-medium tabular-nums"
+            >
+              <span
+                v-for="total in selectedDayTotals"
+                :key="`${total.currencyCode}-${total.currencyKind}`"
+              >
+                {{ formatTotal(total) }}
+              </span>
+            </p>
             <p v-if="!selectedDay || selectedDay.payments.length === 0" class="text-muted-foreground text-sm">
               {{ preferences.t("Calendar_NoPayments") }}
             </p>

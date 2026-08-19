@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed } from "vue"
 import { Search, Upload, Wallet, X } from "@lucide/vue"
+import { useEventListener } from "@vueuse/core"
+import { useRoute, useRouter, RouterLink } from "vue-router"
 
 import EmptyState from "@/components/EmptyState.vue"
 import SampleCsvButton from "@/components/SampleCsvButton.vue"
@@ -33,7 +35,19 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useCsvImport } from "@/composables/useCsvImport"
 import { useListLayout } from "@/composables/useListLayout"
 import { monthlyEquivalentAmount } from "@/cashflow/cost"
+import { isEditableTarget, isOverlayTarget } from "@/dom/keyboard"
 import { cycleLabel, formatIsoDate, formatMoney, paymentChannelLabel } from "@/i18n/format"
+import {
+  ANALYSIS_CARD_LINK_CLASS,
+  ANALYSIS_CELL_LINK_CLASS,
+  calendarLocation,
+  compactQuery,
+  parseSubscriptionSort,
+  parseSubscriptionStatus,
+  queryParam,
+  subscriptionCalendarDate,
+  type SubscriptionStatusFilter,
+} from "@/navigation"
 import { usePreferencesStore } from "@/stores/preferences"
 import { useSessionStore } from "@/stores/session"
 import {
@@ -44,16 +58,41 @@ import {
   SUBSCRIPTION_SORT_OPTIONS,
 } from "@/subscriptions/sort"
 
-const STATUS_FILTERS = ["all", "active", "inactive"] as const
-type StatusFilter = (typeof STATUS_FILTERS)[number]
-
 const preferences = usePreferencesStore()
 const session = useSessionStore()
+const route = useRoute()
+const router = useRouter()
 const { openImport } = useCsvImport()
-const query = ref("")
-const sort = ref(DEFAULT_SUBSCRIPTION_SORT)
-const statusFilter = ref<StatusFilter>("all")
 const { layout } = useListLayout()
+
+const query = computed({
+  get: () => queryParam(route.query.q) ?? "",
+  set: (value: string) => {
+    void router.replace({ query: compactQuery(route.query, { q: value }) })
+  },
+})
+
+const sort = computed({
+  get: () => parseSubscriptionSort(route.query.sort) ?? DEFAULT_SUBSCRIPTION_SORT,
+  set: (value) => {
+    void router.replace({
+      query: compactQuery(route.query, {
+        sort: value === DEFAULT_SUBSCRIPTION_SORT ? undefined : value,
+      }),
+    })
+  },
+})
+
+const statusFilter = computed({
+  get: () => parseSubscriptionStatus(route.query.status),
+  set: (value: SubscriptionStatusFilter) => {
+    void router.replace({
+      query: compactQuery(route.query, {
+        status: value === "all" ? undefined : value,
+      }),
+    })
+  },
+})
 
 const hasListConstraints = computed(
   () => query.value.trim() !== "" || statusFilter.value !== "all",
@@ -115,8 +154,9 @@ function clearSearch(): void {
 }
 
 function clearListConstraints(): void {
-  query.value = ""
-  statusFilter.value = "all"
+  void router.replace({
+    query: compactQuery(route.query, { q: undefined, status: undefined }),
+  })
 }
 
 function textOrUnknown(value: string | null): string {
@@ -128,6 +168,23 @@ function dateLabel(iso: string | null, emptyKey: "Common_Unknown" | "Common_NotS
     ? preferences.t(emptyKey)
     : formatIsoDate(iso, preferences.resolvedLocale)
 }
+
+useEventListener(window, "keydown", (event: KeyboardEvent) => {
+  if (event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey) {
+    return
+  }
+
+  if (event.key !== "/" || !session.hasData) {
+    return
+  }
+
+  if (isEditableTarget(event.target) || isOverlayTarget(event.target)) {
+    return
+  }
+
+  event.preventDefault()
+  document.getElementById("subscription-search")?.focus()
+})
 </script>
 
 <template>
@@ -158,10 +215,17 @@ function dateLabel(iso: string | null, emptyKey: "Common_Unknown" | "Common_NotS
         <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div class="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center">
             <InputGroup class="sm:max-w-sm">
+              <InputGroupAddon>
+                <Search aria-hidden="true" />
+              </InputGroupAddon>
               <InputGroupInput
+                id="subscription-search"
                 v-model="query"
                 :placeholder="preferences.t('Subscriptions_SearchPlaceholder')"
                 :aria-label="preferences.t('Subscriptions_SearchPlaceholder')"
+                autocomplete="off"
+                spellcheck="false"
+                @keydown.escape.prevent="clearSearch"
               />
               <InputGroupAddon v-if="query.length > 0" align="inline-end">
                 <InputGroupButton
@@ -217,10 +281,20 @@ function dateLabel(iso: string | null, emptyKey: "Common_Unknown" | "Common_NotS
       </EmptyState>
 
       <div v-else-if="layout === 'cards'" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        <article
+        <component
+          :is="subscriptionCalendarDate(subscription) ? RouterLink : 'article'"
           v-for="subscription in filtered"
           :key="subscription.id"
-          class="flex flex-col gap-3 rounded-lg border p-3"
+          v-bind="
+            subscriptionCalendarDate(subscription)
+              ? { to: calendarLocation(subscriptionCalendarDate(subscription)!) }
+              : {}
+          "
+          :class="
+            subscriptionCalendarDate(subscription)
+              ? ANALYSIS_CARD_LINK_CLASS
+              : 'flex flex-col gap-3 rounded-lg border p-3'
+          "
         >
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
@@ -256,6 +330,10 @@ function dateLabel(iso: string | null, emptyKey: "Common_Unknown" | "Common_NotS
             <dd class="text-right">{{ dateLabel(subscription.nextBillingOn, "Common_NotScheduled") }}</dd>
             <dt class="text-muted-foreground">{{ preferences.t("Column_Account") }}</dt>
             <dd class="truncate text-right">{{ textOrUnknown(subscription.accountName) }}</dd>
+            <dt class="text-muted-foreground">{{ preferences.t("Column_StartDate") }}</dt>
+            <dd class="text-right">{{ dateLabel(subscription.startsOn, "Common_Unknown") }}</dd>
+            <dt class="text-muted-foreground">{{ preferences.t("Column_PaymentAccount") }}</dt>
+            <dd class="truncate text-right">{{ textOrUnknown(subscription.paymentAccount) }}</dd>
             <dt class="text-muted-foreground">{{ preferences.t("Column_PaymentChannel") }}</dt>
             <dd class="text-right">
               {{ paymentChannelLabel(preferences.resolvedLocale, subscription.paymentChannel) }}
@@ -264,7 +342,7 @@ function dateLabel(iso: string | null, emptyKey: "Common_Unknown" | "Common_NotS
           <p v-if="subscription.notes" class="text-muted-foreground text-sm whitespace-normal">
             {{ subscription.notes }}
           </p>
-        </article>
+        </component>
       </div>
 
       <div v-else class="rounded-md border">
@@ -288,9 +366,25 @@ function dateLabel(iso: string | null, emptyKey: "Common_Unknown" | "Common_NotS
           <TableBody>
             <TableRow v-for="subscription in filtered" :key="subscription.id" class="group">
               <TableCell class="sticky left-0 z-10 bg-background font-medium group-hover:bg-muted/50">
-                {{ subscription.providerName }}
+                <RouterLink
+                  v-if="subscriptionCalendarDate(subscription)"
+                  :to="calendarLocation(subscriptionCalendarDate(subscription)!)"
+                  :class="ANALYSIS_CELL_LINK_CLASS"
+                >
+                  {{ subscription.providerName }}
+                </RouterLink>
+                <template v-else>{{ subscription.providerName }}</template>
               </TableCell>
-              <TableCell>{{ subscription.serviceName }}</TableCell>
+              <TableCell>
+                <RouterLink
+                  v-if="subscriptionCalendarDate(subscription)"
+                  :to="calendarLocation(subscriptionCalendarDate(subscription)!)"
+                  :class="ANALYSIS_CELL_LINK_CLASS"
+                >
+                  {{ subscription.serviceName }}
+                </RouterLink>
+                <template v-else>{{ subscription.serviceName }}</template>
+              </TableCell>
               <TableCell>{{ textOrUnknown(subscription.accountName) }}</TableCell>
               <TableCell class="tabular-nums">
                 {{ formatMoney(subscription.billingAmount, preferences.resolvedLocale) }}
