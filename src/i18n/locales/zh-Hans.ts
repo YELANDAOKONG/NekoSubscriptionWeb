@@ -194,6 +194,7 @@ export const zhHans: Record<MessageKey, string> = {
   About_IntroCompanion:
     "本工具兼容桌面版 13 列 CSV 格式规范，专用于只读预算分析（订阅的新增、编辑与同步请使用桌面端）。",
   About_OpenRepository: "查看 GitHub 仓库",
+  About_OpenDesktopRepository: "查看桌面版 GitHub 仓库",
   About_DownloadSample: "下载示例 CSV 模板",
   About_CsvTitle: "13 列 CSV 格式规范",
   About_CsvDescription:

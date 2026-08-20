@@ -204,6 +204,7 @@ export const ja: Record<MessageKey, string> = {
   About_IntroCompanion:
     "デスクトップ版と同じ 13 列 CSV 形式と完全な互換性を持ち、閲覧・予測に特化しています（編集や同期はデスクトップ版をご利用ください）。",
   About_OpenRepository: "GitHub リポジトリを開く",
+  About_OpenDesktopRepository: "デスクトップ版 GitHub リポジトリ",
   About_DownloadSample: "サンプル CSV テンプレートをダウンロード",
   About_CsvTitle: "13 列 CSV フォーマット仕様",
   About_CsvDescription:

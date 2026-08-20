@@ -194,6 +194,7 @@ export const zhHant: Record<MessageKey, string> = {
   About_IntroCompanion:
     "本工具相容桌面端 13 欄 CSV 格式規格，專用於唯讀預算分析（訂閱的新增、編輯與同步請使用桌面端）。",
   About_OpenRepository: "開啟 GitHub 儲存庫",
+  About_OpenDesktopRepository: "開啟桌面端 GitHub 儲存庫",
   About_DownloadSample: "下載範例 CSV 範本",
   About_CsvTitle: "13 欄 CSV 格式規格",
   About_CsvDescription:

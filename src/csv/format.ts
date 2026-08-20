@@ -1,6 +1,8 @@
 import type { MessageKey } from "@/i18n/locales/en"
 
 export const PROJECT_REPOSITORY_URL = "https://github.com/YELANDAOKONG/NekoSubscriptionWeb"
+export const WEB_REPOSITORY_URL = PROJECT_REPOSITORY_URL
+export const DESKTOP_REPOSITORY_URL = "https://github.com/YELANDAOKONG/NekoSubscription"
 
 export const CSV_FORMAT_COLUMNS: ReadonlyArray<{
   index: number

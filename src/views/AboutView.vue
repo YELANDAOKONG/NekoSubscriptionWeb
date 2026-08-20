@@ -11,7 +11,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { CSV_FORMAT_COLUMNS, PROJECT_REPOSITORY_URL } from "@/csv/format"
+import {
+  CSV_FORMAT_COLUMNS,
+  DESKTOP_REPOSITORY_URL,
+  PROJECT_REPOSITORY_URL,
+} from "@/csv/format"
 import { usePreferencesStore } from "@/stores/preferences"
 
 const preferences = usePreferencesStore()
@@ -35,16 +39,28 @@ const rules = ["About_Rule1", "About_Rule2", "About_Rule3", "About_Rule4", "Abou
       <p class="text-sm leading-relaxed">
         {{ preferences.t("About_IntroBody") }}
       </p>
-      <Button as-child class="w-full sm:w-fit">
-        <a
-          :href="PROJECT_REPOSITORY_URL"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <ExternalLink />
-          {{ preferences.t("About_OpenRepository") }}
-        </a>
-      </Button>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <Button as-child class="w-full sm:w-fit">
+          <a
+            :href="PROJECT_REPOSITORY_URL"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <ExternalLink />
+            {{ preferences.t("About_OpenRepository") }}
+          </a>
+        </Button>
+        <Button variant="outline" as-child class="w-full sm:w-fit">
+          <a
+            :href="DESKTOP_REPOSITORY_URL"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <ExternalLink />
+            {{ preferences.t("About_OpenDesktopRepository") }}
+          </a>
+        </Button>
+      </div>
     </section>
 
     <section class="flex flex-col gap-4">

@@ -203,6 +203,7 @@ export const en = {
   About_IntroCompanion:
     "Fully compatible with the desktop app's standard 13-column CSV format for read-only projection (subscription management, editing, and sync remain on desktop).",
   About_OpenRepository: "Open GitHub repository",
+  About_OpenDesktopRepository: "Desktop GitHub repository",
   About_DownloadSample: "Download sample CSV",
   About_CsvTitle: "13-column CSV format specification",
   About_CsvDescription:
