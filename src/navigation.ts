@@ -112,11 +112,24 @@ export function calendarLocation(date: string): RouteLocationRaw {
 
 export function subscriptionsLocation(options?: {
   status?: Exclude<SubscriptionStatusFilter, "all">
+  id?: string
 }): RouteLocationRaw {
+  const query: Record<string, string> = {}
+  if (options?.status !== undefined) {
+    query.status = options.status
+  }
+  if (options?.id !== undefined && options.id !== "") {
+    query.id = options.id
+  }
+
   return {
     name: "subscriptions",
-    query: options?.status === undefined ? undefined : { status: options.status },
+    query: Object.keys(query).length === 0 ? undefined : query,
   }
+}
+
+export function subscriptionElementId(id: string): string {
+  return `subscription-${id}`
 }
 
 export function subscriptionCalendarDate(subscription: {

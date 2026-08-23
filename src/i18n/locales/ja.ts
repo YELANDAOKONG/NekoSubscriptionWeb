@@ -173,6 +173,7 @@ export const ja: Record<MessageKey, string> = {
   Calendar_NextMonth: "翌月",
   Calendar_GridLabel: "請求カレンダー",
   Calendar_DayWithPayments: "{0}、支払い {1} 件",
+  Calendar_OpenSubscription: "サブスクリプション「{0}」（{1}）の詳細を表示",
   Status_Active: "有効",
   Status_Inactive: "停止",
   Cycle_Day: "毎日",

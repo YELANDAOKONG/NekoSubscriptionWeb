@@ -163,6 +163,7 @@ export const zhHant: Record<MessageKey, string> = {
   Calendar_NextMonth: "下個月",
   Calendar_GridLabel: "扣款月曆",
   Calendar_DayWithPayments: "{0}，共 {1} 筆扣款",
+  Calendar_OpenSubscription: "查看訂閱「{0}」（{1}）的明細",
   Status_Active: "生效中",
   Status_Inactive: "已停用",
   Cycle_Day: "每天",

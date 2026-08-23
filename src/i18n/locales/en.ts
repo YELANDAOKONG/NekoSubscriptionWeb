@@ -172,6 +172,7 @@ export const en = {
   Calendar_NextMonth: "Next month",
   Calendar_GridLabel: "Billing calendar",
   Calendar_DayWithPayments: "{0}, {1} payment(s)",
+  Calendar_OpenSubscription: "View {0} ({1}) in subscriptions",
   Status_Active: "Active",
   Status_Inactive: "Inactive",
   Cycle_Day: "Daily",

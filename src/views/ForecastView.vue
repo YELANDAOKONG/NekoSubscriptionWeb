@@ -245,8 +245,12 @@ function formatTotal(total: CurrencyAmountTotal): string {
           >
             <div class="min-w-0">
               <p class="truncate font-medium">{{ item.subscription.serviceName }}</p>
-              <p class="text-muted-foreground text-sm">
-                {{ item.subscription.providerName }}
+              <p class="text-muted-foreground truncate text-sm">
+                {{
+                  item.subscription.accountName
+                    ? `${item.subscription.providerName} · ${item.subscription.accountName}`
+                    : item.subscription.providerName
+                }}
               </p>
               <p class="text-muted-foreground text-xs">
                 {{ formatIsoDate(item.dueOn, preferences.resolvedLocale) }},
@@ -278,8 +282,8 @@ function formatTotal(total: CurrencyAmountTotal): string {
             >
               <div class="min-w-0">
                 <p class="truncate font-medium">{{ item.serviceName }}</p>
-                <p class="text-muted-foreground text-sm">
-                  {{ item.providerName }}
+                <p class="text-muted-foreground truncate text-sm">
+                  {{ item.accountName ? `${item.providerName} · ${item.accountName}` : item.providerName }}
                 </p>
                 <p class="text-muted-foreground text-xs">
                   {{ formatIsoDate(item.scheduledOn, preferences.resolvedLocale) }}

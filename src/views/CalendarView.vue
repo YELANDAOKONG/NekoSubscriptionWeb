@@ -2,7 +2,7 @@
 import { CalendarDays, ChevronLeft, ChevronRight, Upload } from "@lucide/vue"
 import { useEventListener } from "@vueuse/core"
 import { computed, nextTick, ref, watch } from "vue"
-import { useRoute, useRouter } from "vue-router"
+import { useRoute, useRouter, RouterLink } from "vue-router"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -23,7 +23,12 @@ import {
 } from "@/domain/dates"
 import { CALENDAR_DAY_COUNT, type CashFlowItem, type CurrencyAmountTotal } from "@/domain/types"
 import { formatIsoDate, formatMoney, formatMonthTitle } from "@/i18n/format"
-import { compactQuery, queryParam } from "@/navigation"
+import {
+  ANALYSIS_ROW_LINK_CLASS,
+  compactQuery,
+  queryParam,
+  subscriptionsLocation,
+} from "@/navigation"
 import { usePreferencesStore } from "@/stores/preferences"
 import { useSessionStore } from "@/stores/session"
 import { cn } from "@/lib/utils"
@@ -104,6 +109,18 @@ function formatTotal(total: CurrencyAmountTotal): string {
     },
     preferences.resolvedLocale,
   )
+}
+
+function paymentSubtitle(payment: CashFlowItem): string {
+  return payment.accountName
+    ? `${payment.providerName} · ${payment.accountName}`
+    : payment.providerName
+}
+
+function paymentPreviewLabel(payment: CashFlowItem): string {
+  return payment.accountName
+    ? `${payment.serviceName} · ${payment.accountName}`
+    : payment.serviceName
 }
 
 function dayAriaLabel(day: CalendarDay): string {
@@ -330,7 +347,7 @@ watch(
                       :key="`${payment.subscriptionId}-${payment.scheduledOn}`"
                       class="truncate text-[11px]"
                     >
-                      {{ payment.serviceName }}
+                      {{ paymentPreviewLabel(payment) }}
                     </span>
                     <span v-if="day.payments.length > 2" class="text-muted-foreground text-[11px]">
                       {{ preferences.t("Calendar_AdditionalPayments", day.payments.length - 2) }}
@@ -376,15 +393,26 @@ watch(
               <li
                 v-for="payment in selectedDay.payments"
                 :key="`${payment.subscriptionId}-${payment.scheduledOn}`"
-                class="flex items-start justify-between gap-3 px-3 py-2.5"
               >
-                <div class="min-w-0">
-                  <p class="truncate font-medium">{{ payment.serviceName }}</p>
-                  <p class="text-muted-foreground text-sm">{{ payment.providerName }}</p>
-                </div>
-                <p class="shrink-0 font-medium tabular-nums">
-                  {{ formatMoney(payment.amount, preferences.resolvedLocale) }}
-                </p>
+                <RouterLink
+                  :to="subscriptionsLocation({ id: payment.subscriptionId })"
+                  :class="ANALYSIS_ROW_LINK_CLASS"
+                  :aria-label="
+                    preferences.t(
+                      'Calendar_OpenSubscription',
+                      payment.serviceName,
+                      payment.accountName ?? preferences.t('Common_Unknown'),
+                    )
+                  "
+                >
+                  <div class="min-w-0">
+                    <p class="truncate font-medium">{{ payment.serviceName }}</p>
+                    <p class="text-muted-foreground truncate text-sm">{{ paymentSubtitle(payment) }}</p>
+                  </div>
+                  <p class="shrink-0 font-medium tabular-nums">
+                    {{ formatMoney(payment.amount, preferences.resolvedLocale) }}
+                  </p>
+                </RouterLink>
               </li>
             </ul>
           </CardContent>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue"
+import { computed, nextTick, watch } from "vue"
 import { Search, Upload, Wallet, X } from "@lucide/vue"
 import { useEventListener } from "@vueuse/core"
 import { useRoute, useRouter, RouterLink } from "vue-router"
@@ -46,6 +46,7 @@ import {
   parseSubscriptionStatus,
   queryParam,
   subscriptionCalendarDate,
+  subscriptionElementId,
   type SubscriptionStatusFilter,
 } from "@/navigation"
 import { usePreferencesStore } from "@/stores/preferences"
@@ -93,6 +94,8 @@ const statusFilter = computed({
     })
   },
 })
+
+const focusedId = computed(() => queryParam(route.query.id))
 
 const hasListConstraints = computed(
   () => query.value.trim() !== "" || statusFilter.value !== "all",
@@ -168,6 +171,49 @@ function dateLabel(iso: string | null, emptyKey: "Common_Unknown" | "Common_NotS
     ? preferences.t(emptyKey)
     : formatIsoDate(iso, preferences.resolvedLocale)
 }
+
+function isFocused(id: string): boolean {
+  return focusedId.value === id
+}
+
+async function revealAndFocusSubscription(id: string): Promise<void> {
+  if (!session.subscriptions.some((subscription) => subscription.id === id)) {
+    return
+  }
+
+  if (!filtered.value.some((subscription) => subscription.id === id)) {
+    await router.replace({
+      query: compactQuery(route.query, { q: undefined, status: undefined }),
+    })
+    await nextTick()
+  }
+
+  await nextTick()
+  const element = document.getElementById(subscriptionElementId(id))
+  if (element === null) {
+    return
+  }
+
+  element.scrollIntoView({
+    block: "center",
+    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? "auto"
+      : "smooth",
+  })
+  element.focus({ preventScroll: true })
+}
+
+watch(
+  [focusedId, () => session.hasData],
+  ([id, hasData]) => {
+    if (id === undefined || !hasData) {
+      return
+    }
+
+    void revealAndFocusSubscription(id)
+  },
+  { immediate: true, flush: "post" },
+)
 
 useEventListener(window, "keydown", (event: KeyboardEvent) => {
   if (event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey) {
@@ -285,16 +331,21 @@ useEventListener(window, "keydown", (event: KeyboardEvent) => {
           :is="subscriptionCalendarDate(subscription) ? RouterLink : 'article'"
           v-for="subscription in filtered"
           :key="subscription.id"
+          :id="subscriptionElementId(subscription.id)"
+          tabindex="-1"
+          :aria-current="isFocused(subscription.id) ? 'true' : undefined"
           v-bind="
             subscriptionCalendarDate(subscription)
               ? { to: calendarLocation(subscriptionCalendarDate(subscription)!) }
               : {}
           "
-          :class="
+          :class="[
             subscriptionCalendarDate(subscription)
               ? ANALYSIS_CARD_LINK_CLASS
-              : 'flex flex-col gap-3 rounded-lg border p-3'
-          "
+              : 'flex flex-col gap-3 rounded-lg border p-3',
+            'scroll-mt-24',
+            isFocused(subscription.id) && 'ring-ring bg-muted/40 ring-2',
+          ]"
         >
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
@@ -364,8 +415,23 @@ useEventListener(window, "keydown", (event: KeyboardEvent) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="subscription in filtered" :key="subscription.id" class="group">
-              <TableCell class="sticky left-0 z-10 bg-background font-medium group-hover:bg-muted/50">
+            <TableRow
+              v-for="subscription in filtered"
+              :key="subscription.id"
+              :id="subscriptionElementId(subscription.id)"
+              tabindex="-1"
+              :aria-current="isFocused(subscription.id) ? 'true' : undefined"
+              :class="[
+                'scroll-mt-24',
+                isFocused(subscription.id) ? 'bg-muted/60' : 'group',
+              ]"
+            >
+              <TableCell
+                :class="[
+                  'sticky left-0 z-10 font-medium group-hover:bg-muted/50',
+                  isFocused(subscription.id) ? 'bg-muted/60' : 'bg-background',
+                ]"
+              >
                 <RouterLink
                   v-if="subscriptionCalendarDate(subscription)"
                   :to="calendarLocation(subscriptionCalendarDate(subscription)!)"
