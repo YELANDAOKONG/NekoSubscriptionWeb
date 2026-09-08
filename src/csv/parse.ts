@@ -56,7 +56,9 @@ export function parseSubscriptionCsv(csvText: string): CsvParseResult {
     }
 
     totalRowCount++
-    if (!hasValidColumnCount(fields)) {
+    // Spreadsheet exports often add unused columns after the 13-column contract.
+    // Keep the first 13 fields and ignore the rest instead of rejecting the row.
+    if (fields.length < CSV_COLUMN_COUNT) {
       issues.push(createIssue(rowNumber, "error", "invalid_column_count"))
       continue
     }
@@ -324,14 +326,6 @@ function createDuplicateKey(row: ImportedSubscriptionRow): string {
     row.billingAmount.currencyCode,
     row.nextBillingOn ?? "",
   ].join("\u001F").toUpperCase()
-}
-
-function hasValidColumnCount(fields: string[]): boolean {
-  if (fields.length < CSV_COLUMN_COUNT) {
-    return false
-  }
-
-  return fields.slice(CSV_COLUMN_COUNT).every((field) => field.trim() === "")
 }
 
 function isBlankRow(fields: string[]): boolean {

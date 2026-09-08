@@ -18,7 +18,7 @@ Cash-flow math matches the desktop projector (`CashFlowProjector`): occurrences 
 
 ## CSV format
 
-The parser matches the desktop export from `StandardSubscriptionCsvParser`. **Header text is ignored**; **column order** is the contract. Use a comma-separated UTF-8 file of at most 10 MB. A UTF-8 BOM, quoted fields, blank rows, and trailing empty columns are accepted. A non-empty 14th column is rejected.
+The parser matches the desktop export from `StandardSubscriptionCsvParser`. **Header text is ignored**; **column order** is the contract. Use a comma-separated UTF-8 file of at most 10 MB. A UTF-8 BOM, quoted fields, blank rows, trailing empty columns, and extra columns beyond the 13th are accepted (extra content is ignored).
 
 | # | Typical header | Meaning |
 | --- | --- | --- |
@@ -39,7 +39,7 @@ The parser matches the desktop export from `StandardSubscriptionCsvParser`. **He
 Import rules:
 
 1. The first non-empty row is treated as a header and skipped.
-2. Blank rows are ignored. Trailing empty columns are allowed.
+2. Blank rows are ignored. Extra columns beyond the 13th are ignored.
 3. Duplicate rows produce a warning and are still imported.
 4. Every valid row becomes an ordinary recurring subscription. Inactive rows appear in the list only.
 

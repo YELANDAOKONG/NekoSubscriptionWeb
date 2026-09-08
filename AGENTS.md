@@ -70,7 +70,7 @@ Parse the 13-column export from `NekoSubscription.Core/DataManagement/StandardSu
 | 9 | Active marker: `TRUE`/`FALSE`/`1`/`0` |
 | 10–12 | Payment channel, payment account, notes |
 
-Also match: UTF-8 BOM, quoted fields, skip blank rows, allow trailing empty columns, reject a non-empty 14th column, 10 MiB cap, duplicate-row warnings, date formats `M/d/yyyy`, `M/d/yy`, `yyyy-M-d`, `yyyy-MM-dd`, `yyyy/M/d`, `yyyy/MM/dd`. Apple / Google / PayPal require a payment account. Papa Parse defaults are not the same as .NET `TextFieldParser`; configure and test against the desktop cases.
+Also match: UTF-8 BOM, quoted fields, skip blank rows, ignore extra columns beyond the 13th, 10 MiB cap, duplicate-row warnings, date formats `M/d/yyyy`, `M/d/yy`, `yyyy-M-d`, `yyyy-MM-dd`, `yyyy/M/d`, `yyyy/MM/dd`. Apple / Google / PayPal require a payment account. Papa Parse defaults are not the same as .NET `TextFieldParser`; configure and test against the desktop cases.
 
 Every valid row becomes an **ordinary recurring** subscription. Active → participates in budget; inactive → list only, excluded from forecast. Do not invent cloud, domain, or phone-number subtypes from CSV.
 

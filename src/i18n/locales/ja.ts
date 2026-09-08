@@ -222,14 +222,14 @@ export const ja: Record<MessageKey, string> = {
   About_CsvCol7: "開始日（任意）。M/d/yyyy、yyyy-MM-dd などの形式に対応。",
   About_CsvCol8:
     "次回請求日（任意、デスクトップ版エクスポートの有効期限に相当）。開始日より前の日付は無効です。",
-  About_CsvCol9: "予約フィールドのため空欄にしてください。13 列目以降に値がある行は拒否されます。",
+  About_CsvCol9: "予約フィールドのため空欄にしてください。",
   About_CsvCol10: "有効フラグ: TRUE, FALSE, 1, 0。有効なサブスクリプションのみが予測に含まれます。",
   About_CsvCol11: "支払い方法コード: DIRECT, APPLE, GOOGLE, PAYPAL, BANK, CREDIT_CARD, DEBIT_CARD, CASH, OTHER。",
   About_CsvCol12: "支払い口座。APPLE, GOOGLE, PAYPAL では入力必須です（ない場合は - を指定）。",
   About_CsvCol13: "メモ情報（任意）。",
   About_RuleTitle: "読み込みルール",
   About_Rule1: "最初の非空白行は見出し行としてスキップされます。",
-  About_Rule2: "空白行は無視され、行末の空の列は許容されます。",
+  About_Rule2: "空白行は無視され、13 列目以降の余分な列は無視されます。",
   About_Rule3: "引用符のエスケープに対応。重複行は警告を表示した上で読み込まれます。",
   About_Rule4: "停止中のサブスクリプションは一覧に表示されますが、予測や月額換算からは除外されます。",
   About_Rule5:
